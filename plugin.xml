@@ -1,2 +1,45 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="com.cheneyhu.cordova.tencent.LiteAV" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android"><name>cordova-plugin-tencent-LiteAV</name><js-module name="cordova-plugin-tencent-LiteAV" src="www/cordova-plugin-tencent-LiteAV.js"><clobbers target="cordova.plugins.cordova-plugin-tencent-LiteAV" /></js-module><platform name="ios"><config-file parent="/*" target="config.xml"><feature name="cordova-plugin-tencent-LiteAV"><param name="ios-package" value="cordova-plugin-tencent-LiteAV" /></feature></config-file><source-file src="src/ios/cordova-plugin-tencent-LiteAV.m" /></platform><platform name="android"><config-file parent="/*" target="res/xml/config.xml"><feature name="cordova-plugin-tencent-LiteAV"><param name="android-package" value="com.cheneyhu.cordova.tencent.LiteAV.cordova-plugin-tencent-LiteAV" /></feature></config-file><config-file parent="/*" target="AndroidManifest.xml"></config-file><source-file src="src/android/cordova-plugin-tencent-LiteAV.java" target-dir="src/com/cheneyhu/cordova/tencent/LiteAV/cordova-plugin-tencent-LiteAV" /></platform></plugin>
+<plugin id="com.cheneyhu.cordova.tencent.LiteAV" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>cordova-plugin-tencent-LiteAV</name>
+
+    <js-module name="CLiteAV" src="www/CLiteAV.js">
+        <clobbers target="CLiteAV" />
+    </js-module>
+
+    <platform name="ios">
+        <config-file parent="/widget" target="config.xml">
+            <feature name="CLiteAV">
+                <param name="ios-package" value="CLiteAV" />
+            </feature>
+        </config-file>
+
+        <header-file src="src/ios/CLiteAV.h" />
+        <source-file src="src/ios/CLiteAV.m" />
+
+        <!-- 腾讯直播 SDK -->
+        <framework src="src/ios/TXLiteAVSDK_Smart.framework" custom="true"/>
+
+        <!-- 依赖库 -->
+        <framework src="VideoToolbox.framework" />
+        <framework src="SystemConfiguration.framework" />
+        <framework src="CoreTelephony.framework" />
+        <framework src="AVFoundation.framework" />
+        <framework src="CoreMedia.framework" />
+        <framework src="CoreGraphics.framework" />
+        <framework src="libstdc++.tbd" />
+        <framework src="libz.tbd" />
+        <framework src="libiconv.tbd" />
+        <framework src="libresolv.tbd" />
+
+        <!-- 权限声明 -->
+        <config-file target="*-Info.plist" parent="NSCameraUsageDescription">
+            <string>直播需要访问您的照相机</string>
+        </config-file>
+        <config-file target="*-Info.plist" parent="NSMicrophoneUsageDescription">
+            <string>直播需要访问您的麦克风</string>
+        </config-file>
+
+        <!-- 为了节省 Git 仓库空间压缩了 lib 外部库目录，需要在开始构建之前解压 -->
+        <hook type="before_plugin_install" src="src/ios/hooks/before_plugin_install/unzip_libs.sh"/>
+    </platform>
+</plugin>
