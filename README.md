@@ -37,6 +37,9 @@
 * `successCallback` 播放成功回调
 * `errorCallback` 播放失败回调
 
+## TODO
+* 播放器自适应
+* 播放控制
 
 ## 相关文档 Documents
 腾讯云小直播官方文档：[https://cloud.tencent.com/document/product/454](https://cloud.tencent.com/document/product/454)
