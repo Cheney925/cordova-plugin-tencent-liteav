@@ -16,12 +16,13 @@
 `cordova prepare`
 
 ## 使用 Usage
-###观看直播 CLiteAV.startPlay
+### 观看直播 CLiteAV.startPlay
 
 `CLiteAV.startPlay(url, playType, successCallback, errorCallback)`
 
 * `url` 视频流地址
 * `playType` 视频流类型，参考`CLiteAV.PLAY_TYPE`
+
 	```
 	PLAY_TYPE = {
 	  LIVE_RTMP:     0, // 传入的URL为RTMP直播地址
@@ -39,4 +40,5 @@
 
 ## 相关文档 Documents
 腾讯云小直播官方文档：[https://cloud.tencent.com/document/product/454](https://cloud.tencent.com/document/product/454)
+
 开源项目参考：[https://github.com/EaseCloud/cordova-plugin-tencent-mlvb](https://github.com/EaseCloud/cordova-plugin-tencent-mlvb)
