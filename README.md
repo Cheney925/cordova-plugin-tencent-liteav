@@ -8,14 +8,18 @@
 下载git源码包，手动放入plugins目录
 ### 方法三
 在config.xml中添加
+
 `<plugin name="cordova-plugin-tencent-LiteAV" spec="https://github.com/Cheney925/cordova-plugin-tencent-LiteAV.git" />`
 
 然后运行
+
 `cordova prepare`
 
 ## 使用 Usage
-###观看直播 startPlay
+###观看直播 CLiteAV.startPlay
+
 `CLiteAV.startPlay(url, playType, successCallback, errorCallback)`
+
 * `url` 视频流地址
 * `playType` 视频流类型，参考`CLiteAV.PLAY_TYPE`
 	```
