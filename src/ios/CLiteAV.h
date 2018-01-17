@@ -5,10 +5,8 @@
 @interface CLiteAV : CDVPlugin
 
 @property UIView* videoView;
-@property TXLivePush* livePusher;
 @property TXLivePlayer* livePlayer;
 
-- (void) getVersion:(CDVInvokedUrlCommand*)command;
 - (void) startPlay:(CDVInvokedUrlCommand*)command;
 
 @end
