@@ -16,7 +16,7 @@
 `cordova prepare`
 
 ## 使用 Usage
-### 观看直播 CLiteAV.startPlay
+### 直播/播放视频 CLiteAV.startPlay()
 
 `CLiteAV.startPlay(url, playType, successCallback, errorCallback)`
 
@@ -36,6 +36,35 @@
 	```
 * `successCallback` 播放成功回调
 * `errorCallback` 播放失败回调
+
+### 停止播放 CLiteAV.stopPlay()
+
+只是暂停播放，播放器界面还存在。
+
+`CLiteAV.stopPlay(successCallback, errorCallback)`
+
+* `successCallback` 成功回调
+* `errorCallback` 失败回调
+
+### 退出播放 CLiteAV.exit()
+
+退出播放即退出播放界面，会销毁播放器。
+
+`CLiteAV.exit(successCallback, errorCallback)`
+
+* `successCallback` 成功回调
+* `errorCallback` 失败回调
+
+### 设置播放模式 CLiteAV.setPlayMode()
+
+`CLiteAV.setPlayMode(mode, successCallback, errorCallback)`
+
+* `mode` 播放模式，可选值： `portrait`、`landscape`，前端可通过监听设备横竖屏模式变化时调用这个方法，也可以添加一个控制按钮进行调用
+* `successCallback` 成功回调 
+* `errorCallback` 失败回调
+
+## Demo
+基于Ionic 3的Demo：[https://github.com/Cheney925/ionic-for-cordova-plugin-tencent-LiteAV](https://github.com/Cheney925/ionic-for-cordova-plugin-tencent-LiteAV)
 
 ## TODO
 * 播放器自适应
