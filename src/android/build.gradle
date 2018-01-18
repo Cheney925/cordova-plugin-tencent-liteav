@@ -1,0 +1,22 @@
+repositories {
+    jcenter()
+}
+
+dependencies {
+//    compile 'com.android.support:appcompat-v7:25.0.1'
+//    compile 'com.facebook.android:facebook-android-sdk:4.8.1'
+    compile 'com.google.code.gson:gson:+'
+    compile 'com.squareup.okhttp3:okhttp:3.6.+'
+    compile 'com.squareup.okio:okio:+'
+//    compile 'com.google.android.gms:play-services-auth:10.0.1'
+//    compile 'com.google.android.gms:play-services-games:10.0.1'
+//    compile 'com.android.support:support-v4:25.1.0'
+//    compile 'com.android.support:appcompat-v7:25.1.0'
+}
+
+android {
+    packagingOptions {
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+    }
+}

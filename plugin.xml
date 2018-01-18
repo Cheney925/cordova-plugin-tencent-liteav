@@ -1,6 +1,16 @@
 <?xml version='1.0' encoding='utf-8'?>
 <plugin id="cordova-plugin-tencent-LiteAV" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>cordova-plugin-tencent-LiteAV</name>
+    <description>Tencent LiteAV Plugin</description>
+    <license>Apache 2.0</license>
+    <keywords>cordova,live,video,tencent,qq,liteav</keywords>
+    <dependency id="cordova-plugin-compat" version="^1.1.0" />
+
+    <engines>
+        <engine name="cordova" version=">=3.5.0" />
+    </engines>
+
+    <asset src="www/CLiteAV.js" target="js/CLiteAV.js" />
 
     <js-module name="CLiteAV" src="www/CLiteAV.js">
         <clobbers target="CLiteAV" />
@@ -41,5 +51,46 @@
 
         <!-- 为了节省 Git 仓库空间压缩了 lib 外部库目录，需要在开始构建之前解压 -->
         <hook type="before_plugin_install" src="src/ios/hooks/before_plugin_install/unzip_libs.sh"/>
+    </platform>
+
+    <platform name="android">
+
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="TencentMLVB">
+                <param name="android-package" value="com.hoperun.cordova.tencent.CLiteAV" />
+            </feature>
+        </config-file>
+
+        <config-file parent="/*" target="AndroidManifest.xml">
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+            <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+            <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+            <uses-permission android:name="android.permission.CALL_PHONE" />
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.READ_LOGS" />
+            <uses-permission android:name="android.permission.RECORD_AUDIO" />
+            <uses-permission android:name="android.permission.CAMERA" />
+            <uses-feature android:name="android.hardware.Camera" />
+            <uses-feature android:name="android.hardware.camera.autofocus" />
+        </config-file>
+
+        <!-- 腾讯直播 SDK -->
+        <framework src="src/android/build.gradle" custom="true" type="gradleReference"/>
+
+        <source-file src="src/android/libs/txrtmpsdk.jar" target-dir="libs" />
+        <source-file src="src/android/libs/ugcupload.jar" target-dir="libs" />
+        <source-file src="src/android/libs/sha1utils.jar" target-dir="libs" />
+        <source-file src="src/android/libs/cos-sdk-android.1.4.3.6.jar" target-dir="libs" />
+       
+        <source-file src="src/android/libs/armeabi" target-dir="libs" />
+        <source-file src="src/android/libs/armeabi-v7a" target-dir="libs" />
+
+        <!-- 源文件 -->
+        <source-file src="src/android/CLiteAV.java" target-dir="src/com/hoperun/cordova/tencent/" />
+        <source-file src="src/android/res/layout/layout_video.xml" target-dir="res/layout" />
+
+        <!-- 为了节省 Git 仓库空间压缩了 lib 外部库目录，需要在开始构建之前解压 -->
+        <hook type="before_plugin_install" src="src/android/hooks/before_plugin_install/unzip_libs.sh"/>
     </platform>
 </plugin>
