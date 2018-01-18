@@ -11,6 +11,12 @@ exports.PLAY_TYPE = {
   LOCAL_VIDEO:   6  // 手机本地视频文件
 }
 
+// 播放模式 
+exports.PLAY_MODE = {
+  PORTRAIT:      1,  // 竖屏
+  LANDSCAPE:     0 // 横屏
+}
+
 // 开始播放
 exports.startPlay = function(url, playType, success, error) {
   cordova.exec(success, error, 'CLiteAV', 'startPlay', [url, playType]);

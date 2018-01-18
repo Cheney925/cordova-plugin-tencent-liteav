@@ -52,6 +52,10 @@ public class CLiteAV extends CordovaPlugin {
     private static final float  CACHE_TIME_FAST = 1.0f;
     private static final float  CACHE_TIME_SMOOTH = 5.0f;
 
+    private int              mCurrentRenderRotation;
+    private int              mCurrentRenderMode;
+
+
     private String[] permissions = {
             Manifest.permission.INTERNET,
             Manifest.permission.ACCESS_NETWORK_STATE,
@@ -78,6 +82,8 @@ public class CLiteAV extends CordovaPlugin {
         this.context = this.activity.getApplicationContext();
         this.rootView = (ViewGroup) activity.findViewById(android.R.id.content);
         this.webView = (WebView) rootView.getChildAt(0);
+        mCurrentRenderMode     = TXLiveConstants.RENDER_MODE_ADJUST_RESOLUTION;
+        mCurrentRenderRotation = TXLiveConstants.RENDER_ROTATION_PORTRAIT;
         mPlayConfig = new TXLivePlayConfig();
     }
 
@@ -106,6 +112,9 @@ public class CLiteAV extends CordovaPlugin {
             return startPlay(url,playType, callbackContext);
         } else if (action.equals("stopPlay")) {
             return stopPlay(callbackContext);
+        }else if(action.equals("setPlayMode")){
+            final int playMode = args.getInt(0);
+            return setPlayMode(playMode, callbackContext);
         }
         callbackContext.error("Undefined action: " + action);
         return true;
@@ -136,7 +145,7 @@ public class CLiteAV extends CordovaPlugin {
 
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
-                800,
+                FrameLayout.LayoutParams.MATCH_PARENT,
                 Gravity.TOP
         );
         lp.setMargins(0,0,0,0);
@@ -203,9 +212,9 @@ public class CLiteAV extends CordovaPlugin {
                 mLivePlayer.setConfig(mPlayConfig);
 
                 // 设置图像渲染角度
-                mLivePlayer.setRenderRotation(TXLiveConstants.RENDER_ROTATION_PORTRAIT);
+                mLivePlayer.setRenderRotation(mCurrentRenderRotation);
                 // 设置横屏、竖屏
-                mLivePlayer.setRenderMode(TXLiveConstants.RENDER_MODE_ADJUST_RESOLUTION);
+                mLivePlayer.setRenderMode(mCurrentRenderMode);
 
                 // 将视频绑定到 videoView
                 mLivePlayer.setPlayerView(videoView);
@@ -216,7 +225,16 @@ public class CLiteAV extends CordovaPlugin {
         });
         return true;
     }
-
+    private boolean setPlayMode(final int playMode, final CallbackContext callbackContext){
+        if (mLivePlayer == null) {
+            callbackContext.error("切换失败");
+            return false;
+        }
+        mCurrentRenderMode = playMode;
+        mLivePlayer.setRenderMode(mCurrentRenderMode);
+        callbackContext.success("切换成功");
+        return true;
+    }
     /**
      * 停止推流，并且注销 mLivePlay 对象
      *
