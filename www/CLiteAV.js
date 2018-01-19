@@ -17,9 +17,16 @@ exports.PLAY_MODE = {
   PORTRAIT:      1  // 竖屏
 };
 
-// 开始播放
-exports.startPlay = function(url, playType, success, error) {
-  cordova.exec(success, error, 'CLiteAV', 'startPlay', [url, playType]);
+/*
+ * 开始播放
+ * @params options  {Object}  选项
+ *           |- url        {String}  播放地址
+ *           |- playType   {Number}  播放类型，参考PLAY_TYPE
+ *           |- width      {Number}  播放器宽度
+ *           |- height     {Number}  播放器高度
+ */
+exports.startPlay = function(options, success, error) {
+  cordova.exec(success, error, 'CLiteAV', 'startPlay', [options]);
 };
 
 // 停止播放
