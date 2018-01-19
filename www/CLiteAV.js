@@ -9,13 +9,13 @@ exports.PLAY_TYPE = {
   VOD_MP4:       4, // 传入的URL为MP4点播地址
   LIVE_RTMP_ACC: 5, // 低延迟连麦链路直播地址（仅适合于连麦场景）
   LOCAL_VIDEO:   6  // 手机本地视频文件
-}
+};
 
 // 播放模式 
 exports.PLAY_MODE = {
-  PORTRAIT:      1,  // 竖屏
-  LANDSCAPE:     0 // 横屏
-}
+  LANDSCAPE:     0, // 横屏
+  PORTRAIT:      1  // 竖屏
+};
 
 // 开始播放
 exports.startPlay = function(url, playType, success, error) {
