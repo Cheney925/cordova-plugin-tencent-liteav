@@ -22,8 +22,8 @@ exports.PLAY_MODE = {
  * @params options  {Object}  选项
  *           |- url        {String}  播放地址
  *           |- playType   {Number}  播放类型，参考PLAY_TYPE
- *           |- width      {Number}  播放器宽度
- *           |- height     {Number}  播放器高度
+ *           |- width      {Number}  [可选]播放器宽度
+ *           |- height     {Number}  [可选]播放器高度
  */
 exports.startPlay = function(options, success, error) {
   cordova.exec(success, error, 'CLiteAV', 'startPlay', [options]);
@@ -32,6 +32,16 @@ exports.startPlay = function(options, success, error) {
 // 停止播放
 exports.stopPlay = function(success, error) {
   cordova.exec(success, error, 'CLiteAV', 'stopPlay', []);
+};
+
+// 暂停播放
+exports.pause = function(success, error) {
+  cordova.exec(success, error, 'CLiteAV', 'pause', []);
+};
+
+// 恢复播放
+exports.resume = function(success, error) {
+  cordova.exec(success, error, 'CLiteAV', 'resume', []);
 };
 
 // 播放模式 portrait/landscape
