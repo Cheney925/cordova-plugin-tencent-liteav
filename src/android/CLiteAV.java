@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
+import android.graphics.Color;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import org.apache.cordova.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.gson.Gson;
 
@@ -54,6 +56,9 @@ public class CLiteAV extends CordovaPlugin {
 
     private int              mCurrentRenderRotation;
     private int              mCurrentRenderMode;
+
+    private int              driveHeight;
+    private int              driveWidth;
 
 
     private String[] permissions = {
@@ -107,9 +112,15 @@ public class CLiteAV extends CordovaPlugin {
         if (action.equals("getVersion")) {
             return getVersion(callbackContext);
         } else if (action.equals("startPlay")) {
-            final String url = args.getString(0);
-            final int playType = args.getInt(1);
-            return startPlay(url,playType, callbackContext);
+            final String option = args.getString(0);
+            JSONObject jsonRsp = new JSONObject(option);
+            final String url = jsonRsp.optString("url");
+            final int playType = jsonRsp.optInt("playType");
+            final int width = jsonRsp.optInt("width");
+            final int height = jsonRsp.optInt("height");
+            driveHeight = height;
+            driveWidth = width;
+            return startPlay(url, playType, width, height,callbackContext);
         } else if (action.equals("stopPlay")) {
             return stopPlay(callbackContext);
         }else if(action.equals("setPlayMode")){
@@ -136,7 +147,8 @@ public class CLiteAV extends CordovaPlugin {
         }
     }
 
-    private void prepareVideoView() {
+    private void prepareVideoView(final int width,final int heigh) {
+        int screenHeigh = 16*width/9;
         if (videoView != null) return;
         // 通过 layout 文件插入 videoView
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
@@ -145,7 +157,7 @@ public class CLiteAV extends CordovaPlugin {
 
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT,
+                screenHeigh,
                 Gravity.TOP
         );
         lp.setMargins(0,0,0,0);
@@ -153,6 +165,12 @@ public class CLiteAV extends CordovaPlugin {
         // 插入视图
         rootView.addView(videoView);
         videoView.setVisibility(View.VISIBLE);
+        // 设置 webView 透明
+        webView.setBackgroundColor(Color.TRANSPARENT);
+        // 关闭 webView 的硬件加速（否则不能透明）
+        webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+        // 将 webView 提到顶层
+        webView.bringToFront();
     }
 
     /**
@@ -163,8 +181,8 @@ public class CLiteAV extends CordovaPlugin {
         videoView.onDestroy();
         rootView.removeView(videoView);
         videoView = null;
-//        // 把 webView 变回白色
-//        webView.setBackgroundColor(Color.WHITE);
+        // 把 webView 变回白色
+        webView.setBackgroundColor(Color.WHITE);
     }
 
     /**
@@ -196,7 +214,7 @@ public class CLiteAV extends CordovaPlugin {
      * @param callbackContext
      * @return
      */
-    private boolean startPlay(final String url, final int playType, final CallbackContext callbackContext) {
+    private boolean startPlay(final String url, final int playType,final int width,final int heigh, final CallbackContext callbackContext) {
         if (mLivePlayer != null) {
             callbackContext.error("10004");
             return false;
@@ -204,7 +222,7 @@ public class CLiteAV extends CordovaPlugin {
         // 准备 videoView，没有的话生成
         activity.runOnUiThread(new Runnable() {
             public void run() {
-                prepareVideoView();
+                prepareVideoView(width,heigh);
                 // 开始推流
                 mLivePlayer = new TXLivePlayer(activity);
                 // 设置自动配置
@@ -231,6 +249,23 @@ public class CLiteAV extends CordovaPlugin {
             return false;
         }
         mCurrentRenderMode = playMode;
+        if(playMode == 0){
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    Gravity.TOP
+            );
+            lp.setMargins(0,0,0,0);
+            videoView.setLayoutParams(lp);
+        }else{
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    driveWidth*16/9,
+                    Gravity.TOP
+            );
+            lp.setMargins(0,0,0,0);
+            videoView.setLayoutParams(lp);
+        }
         mLivePlayer.setRenderMode(mCurrentRenderMode);
         callbackContext.success("切换成功");
         return true;
