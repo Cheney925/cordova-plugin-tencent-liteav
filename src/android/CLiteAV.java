@@ -126,6 +126,10 @@ public class CLiteAV extends CordovaPlugin {
         }else if(action.equals("setPlayMode")){
             final int playMode = args.getInt(0);
             return setPlayMode(playMode, callbackContext);
+        }else if(action.equals("pause")){
+            return pause();
+        }else if(action.equals("resume")){
+            return resume();
         }
         callbackContext.error("Undefined action: " + action);
         return true;
@@ -356,5 +360,13 @@ public class CLiteAV extends CordovaPlugin {
             default:
                 break;
         }
+    }
+    public boolean pause(){
+        mLivePlayer.pause();
+        return true;
+    }
+    public boolean resume(){
+        mLivePlayer.resume();
+        return true;
     }
 }
