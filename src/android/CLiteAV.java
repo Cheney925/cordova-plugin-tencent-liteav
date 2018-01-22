@@ -10,6 +10,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
@@ -60,6 +61,9 @@ public class CLiteAV extends CordovaPlugin {
     private int              driveHeight;
     private int              driveWidth;
 
+    private double           density;
+
+    private int              screenHeigh;
 
     private String[] permissions = {
             Manifest.permission.INTERNET,
@@ -90,6 +94,11 @@ public class CLiteAV extends CordovaPlugin {
         mCurrentRenderMode     = TXLiveConstants.RENDER_MODE_ADJUST_RESOLUTION;
         mCurrentRenderRotation = TXLiveConstants.RENDER_ROTATION_PORTRAIT;
         mPlayConfig = new TXLivePlayConfig();
+        WindowManager wm = (WindowManager) cordova.getActivity()
+                .getSystemService(Context.WINDOW_SERVICE);
+
+        driveWidth = wm.getDefaultDisplay().getWidth();
+        driveHeight = wm.getDefaultDisplay().getHeight();
     }
 
     /**
@@ -118,8 +127,8 @@ public class CLiteAV extends CordovaPlugin {
             final int playType = jsonRsp.optInt("playType");
             final int width = jsonRsp.optInt("width");
             final int height = jsonRsp.optInt("height");
-            driveHeight = height;
-            driveWidth = width;
+            density = (double) driveWidth/width;
+            screenHeigh = (int) ((16*width/9)/(3/density));
             return startPlay(url, playType, width, height,callbackContext);
         } else if (action.equals("stopPlay")) {
             return stopPlay(callbackContext);
@@ -152,7 +161,7 @@ public class CLiteAV extends CordovaPlugin {
     }
 
     private void prepareVideoView(final int width,final int heigh) {
-        int screenHeigh = 16*width/9;
+
         if (videoView != null) return;
         // 通过 layout 文件插入 videoView
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
@@ -264,7 +273,7 @@ public class CLiteAV extends CordovaPlugin {
         }else{
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.MATCH_PARENT,
-                    driveWidth*16/9,
+                    screenHeigh,
                     Gravity.TOP
             );
             lp.setMargins(0,0,0,0);
