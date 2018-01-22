@@ -21,13 +21,15 @@
 
 @synthesize videoView;
 @synthesize livePlayer;
+@synthesize playerWidth;
+@synthesize playerHeight;
 
 // 准备放置视频的视图
-- (void) prepareVideoView:(int) width withHeight:(int) height {
+- (void) prepareVideoView {
     if (self.videoView) return;
     
 //    self.videoView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.videoView = [[UIView alloc] initWithFrame:CGRectMake(0.0,0.0,width,height)];
+    self.videoView = [[UIView alloc] initWithFrame:CGRectMake(0.0,0.0,self.playerWidth,self.playerHeight)];
     
     [self.webView.superview addSubview:self.videoView];
     
@@ -82,22 +84,20 @@
     // 设置播放器大小
     int width = [[optionsDict valueForKey:@"width"] intValue]; // 播放器宽度
     int height = [[optionsDict valueForKey:@"height"] intValue]; // 播放器高度
-    int playerWidth;
-    int playerHeight;
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     if (width) {
-        playerWidth = width;
+        self.playerWidth = width;
     } else {
-        playerWidth = screenBounds.size.width;
+        self.playerWidth = screenBounds.size.width;
     }
     if (height) {
-        playerHeight = height;
+        self.playerHeight = height;
     } else {
-        playerHeight = playerWidth * 9/16;
+        self.playerHeight = playerWidth * 9/16;
     }
 
     // 播放视图准备
-    [self prepareVideoView:playerWidth withHeight:playerHeight];
+    [self prepareVideoView];
 
     // 播放器准备
     self.livePlayer = [[TXLivePlayer alloc] init];
@@ -125,16 +125,16 @@
 - (void) setPlayMode:(CDVInvokedUrlCommand*)command {
     if (!self.livePlayer) return;
     
-    NSInteger mode = (NSInteger)[command.arguments objectAtIndex:0];
+    int mode = [[command.arguments objectAtIndex:0] intValue];
     switch (mode) {
         case 0:
-            [self.livePlayer setRenderRotation:HOME_ORIENTATION_RIGHT];
+            [self.videoView setFrame:[[UIScreen mainScreen] bounds]];
             break;
         case 1:
-            [self.livePlayer setRenderRotation:HOME_ORIENTATION_DOWN];
+            [self.videoView setFrame:CGRectMake(0.0,0.0,self.playerWidth,self.playerHeight)];
             break;
         default:
-            [self.livePlayer setRenderRotation:HOME_ORIENTATION_DOWN];
+            [self.videoView setFrame:CGRectMake(0.0,0.0,self.playerWidth,self.playerHeight)];
             break;
     }
 }
