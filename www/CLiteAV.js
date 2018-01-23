@@ -48,8 +48,3 @@ exports.resume = function(success, error) {
 exports.setPlayMode = function(mode, success, error) {
   cordova.exec(success, error, 'CLiteAV', 'setPlayMode', [mode]);
 };
-
-// 退出播放
-exports.exit = function(success, error) {
-  cordova.exec(success, error, 'CLiteAV', 'exit', []);
-};
