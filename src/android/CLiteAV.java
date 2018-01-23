@@ -91,7 +91,7 @@ public class CLiteAV extends CordovaPlugin {
         this.context = this.activity.getApplicationContext();
         this.rootView = (ViewGroup) activity.findViewById(android.R.id.content);
         this.webView = (WebView) rootView.getChildAt(0);
-        mCurrentRenderMode     = TXLiveConstants.RENDER_MODE_ADJUST_RESOLUTION;
+        mCurrentRenderMode     = TXLiveConstants.RENDER_MODE_FULL_FILL_SCREEN;
         mCurrentRenderRotation = TXLiveConstants.RENDER_ROTATION_PORTRAIT;
         mPlayConfig = new TXLivePlayConfig();
         WindowManager wm = (WindowManager) cordova.getActivity()
@@ -262,24 +262,32 @@ public class CLiteAV extends CordovaPlugin {
             return false;
         }
         mCurrentRenderMode = playMode;
+//        mLivePlayer.setRenderMode(mCurrentRenderMode);
         if(playMode == 0){
-            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    Gravity.TOP
-            );
-            lp.setMargins(0,0,0,0);
-            videoView.setLayoutParams(lp);
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                            FrameLayout.LayoutParams.MATCH_PARENT,
+                            FrameLayout.LayoutParams.MATCH_PARENT,
+                            Gravity.TOP
+                    );
+                    lp.setMargins(0, 0, 0, 0);
+                    videoView.setLayoutParams(lp);
+                }
+            });
         }else{
-            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    screenHeigh,
-                    Gravity.TOP
-            );
-            lp.setMargins(0,0,0,0);
-            videoView.setLayoutParams(lp);
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                            FrameLayout.LayoutParams.MATCH_PARENT,
+                            screenHeigh,
+                            Gravity.TOP
+                    );
+                    lp.setMargins(0, 0, 0, 0);
+                    videoView.setLayoutParams(lp);
+                }
+            });
         }
-        mLivePlayer.setRenderMode(mCurrentRenderMode);
         callbackContext.success("切换成功");
         return true;
     }
