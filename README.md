@@ -41,18 +41,25 @@
 
 ### 停止播放 CLiteAV.stopPlay()
 
-只是暂停播放，播放器界面还存在。
+停止播放，退出播放器，播放器会被销毁。
 
 `CLiteAV.stopPlay(successCallback, errorCallback)`
 
 * `successCallback` 成功回调
 * `errorCallback` 失败回调
 
-### 退出播放 CLiteAV.exit()
+### 暂停播放 CLiteAV.pause()
 
-退出播放即退出播放界面，会销毁播放器。
+暂停播放，播放器仍然存在，如需销毁，调用stopPlay()。
 
-`CLiteAV.exit(successCallback, errorCallback)`
+`CLiteAV.pause(successCallback, errorCallback)`
+
+* `successCallback` 成功回调
+* `errorCallback` 失败回调
+
+### 恢复播放 CLiteAV.resume()
+
+`CLiteAV.resume(successCallback, errorCallback)`
 
 * `successCallback` 成功回调
 * `errorCallback` 失败回调
