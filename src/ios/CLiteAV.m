@@ -23,6 +23,7 @@
 @synthesize livePlayer;
 @synthesize playerWidth;
 @synthesize playerHeight;
+@synthesize netStatus;
 
 // 准备放置视频的视图
 - (void) prepareVideoView {
@@ -48,10 +49,8 @@
 
 // 开始播放
 - (void) startPlay:(CDVInvokedUrlCommand*)command {
-    if (self.livePlayer) return;
-    
-    NSDictionary *optionsDict = [command.arguments objectAtIndex:0];
-    NSString *url = [optionsDict objectForKey:@"url"]; // 播放地址
+    NSDictionary* optionsDict = [command.arguments objectAtIndex:0];
+    NSString* url = [optionsDict objectForKey:@"url"]; // 播放地址
     int type = [[optionsDict valueForKey:@"playType"] intValue]; // 播放类型
     TX_Enum_PlayType playType;
     switch (type) {
@@ -85,12 +84,12 @@
     int width = [[optionsDict valueForKey:@"width"] intValue]; // 播放器宽度
     int height = [[optionsDict valueForKey:@"height"] intValue]; // 播放器高度
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
-    if (width) {
+    if (width && width != 0) {
         self.playerWidth = width;
     } else {
         self.playerWidth = screenBounds.size.width;
     }
-    if (height) {
+    if (height && height != 0) {
         self.playerHeight = height;
     } else {
         self.playerHeight = playerWidth * 9/16;
@@ -106,7 +105,19 @@
     [self.livePlayer setRenderRotation:HOME_ORIENTATION_DOWN];
     [self.livePlayer setRenderMode:RENDER_MODE_FILL_EDGE];
 
-    [self.livePlayer startPlay:url type:playType];
+    CDVPluginResult *pluginResult;
+    @try {
+        [self.livePlayer startPlay:url type:playType];
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[CLiteAV] Played Successful!"];
+    } @catch (NSException *ex) {
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"[CLiteAV] Played Fail!"];
+    }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    
+    // 绑定事件
+    [self.livePlayer setDelegate:self];
 }
 
 // 暂停播放
@@ -147,6 +158,36 @@
     [self destroyVideoView];
     
     [self.webView setBackgroundColor:[UIColor whiteColor]];
+}
+
+// 监听播放事件
+- (void) onPlayEvent:(int)EvtID withParam:(NSDictionary*)param {
+    if (EvtID == PLAY_EVT_PLAY_LOADING) {
+        NSLog(@"[CLiteAV] 加载中...");
+    }
+    if (EvtID == PLAY_EVT_RTMP_STREAM_BEGIN) {
+        NSLog(@"[CLiteAV] 已经连接服务器，开始拉流");
+    }
+    if (EvtID == PLAY_EVT_PLAY_BEGIN) {
+        NSLog(@"[CLiteAV] 开始播放");
+    }
+}
+
+// 获取当前网络状况和视频信息
+- (void) getNetStatus:(CDVInvokedUrlCommand*)command {
+    CDVPluginResult *pluginResult;
+    if (!self.netStatus) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:nil];
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:self.netStatus];
+    }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void) onNetStatus:(NSDictionary*) param {
+    if (param && param != nil) {
+        self.netStatus = param;
+    }
 }
 
 @end
