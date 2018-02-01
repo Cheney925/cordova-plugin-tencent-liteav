@@ -64,6 +64,8 @@ public class CLiteAV extends CordovaPlugin {
     private double           density;
 
     private int              screenHeigh;
+    private int              screenWidth;
+
 
     private String[] permissions = {
             Manifest.permission.INTERNET,
@@ -91,7 +93,7 @@ public class CLiteAV extends CordovaPlugin {
         this.context = this.activity.getApplicationContext();
         this.rootView = (ViewGroup) activity.findViewById(android.R.id.content);
         this.webView = (WebView) rootView.getChildAt(0);
-        mCurrentRenderMode     = TXLiveConstants.RENDER_MODE_FULL_FILL_SCREEN;
+        mCurrentRenderMode     = TXLiveConstants.RENDER_MODE_ADJUST_RESOLUTION;
         mCurrentRenderRotation = TXLiveConstants.RENDER_ROTATION_PORTRAIT;
         mPlayConfig = new TXLivePlayConfig();
         WindowManager wm = (WindowManager) cordova.getActivity()
@@ -99,6 +101,8 @@ public class CLiteAV extends CordovaPlugin {
 
         driveWidth = wm.getDefaultDisplay().getWidth();
         driveHeight = wm.getDefaultDisplay().getHeight();
+        screenHeigh = (9*driveWidth/16);
+        screenWidth = (16*driveWidth/9);
     }
 
     /**
@@ -127,8 +131,6 @@ public class CLiteAV extends CordovaPlugin {
             final int playType = jsonRsp.optInt("playType");
             final int width = jsonRsp.optInt("width");
             final int height = jsonRsp.optInt("height");
-            density = (double) driveWidth/width;
-            screenHeigh = (int) ((16*width/9)/(3/density));
             return startPlay(url, playType, width, height,callbackContext);
         } else if (action.equals("stopPlay")) {
             return stopPlay(callbackContext);
@@ -167,9 +169,9 @@ public class CLiteAV extends CordovaPlugin {
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
         videoView = (TXCloudVideoView) layoutInflater.inflate(_R("layout", "layout_video"), null);
         // 设置 webView 透明
-
+        System.out.println(screenHeigh);
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
+                driveWidth,
                 screenHeigh,
                 Gravity.TOP
         );
@@ -261,25 +263,26 @@ public class CLiteAV extends CordovaPlugin {
             callbackContext.error("切换失败");
             return false;
         }
-        mCurrentRenderMode = playMode;
+//        mCurrentRenderMode = playMode;
 //        mLivePlayer.setRenderMode(mCurrentRenderMode);
         if(playMode == 0){
             activity.runOnUiThread(new Runnable() {
                 public void run() {
                     FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                            FrameLayout.LayoutParams.MATCH_PARENT,
-                            FrameLayout.LayoutParams.MATCH_PARENT,
+                            screenWidth,
+                            driveWidth,
                             Gravity.TOP
                     );
-                    lp.setMargins(0, 0, 0, 0);
+                    lp.setMargins(driveHeight-screenWidth, 0, driveHeight-screenWidth, 0);
                     videoView.setLayoutParams(lp);
                 }
             });
         }else{
+            System.out.println(screenHeigh);
             activity.runOnUiThread(new Runnable() {
                 public void run() {
                     FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                            FrameLayout.LayoutParams.MATCH_PARENT,
+                            driveWidth,
                             screenHeigh,
                             Gravity.TOP
                     );
