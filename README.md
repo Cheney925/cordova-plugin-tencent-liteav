@@ -77,8 +77,7 @@
 基于Ionic 3的Demo：[https://github.com/Cheney925/ionic-for-cordova-plugin-tencent-LiteAV](https://github.com/Cheney925/ionic-for-cordova-plugin-tencent-LiteAV)
 
 ## TODO
-* 播放器自适应
-* 播放控制
+* 各方法回调实现
 
 ## 相关文档 Documents
 腾讯云小直播官方文档：[https://cloud.tencent.com/document/product/454](https://cloud.tencent.com/document/product/454)
