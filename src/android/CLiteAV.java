@@ -270,7 +270,7 @@ public class CLiteAV extends CordovaPlugin {
                 public void run() {
                     FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                             screenWidth,
-                            driveWidth,
+                            driveWidth-getStatusBarHeight(),
                             Gravity.TOP
                     );
                     lp.setMargins(driveHeight-screenWidth, 0, driveHeight-screenWidth, 0);
@@ -388,5 +388,15 @@ public class CLiteAV extends CordovaPlugin {
     public boolean resume(){
         mLivePlayer.resume();
         return true;
+    }
+    // 获取状态栏高度
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = this.activity.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = this.activity.getResources().getDimensionPixelSize(resourceId);
+        }
+        System.out.println("获取状态栏高度=======>"+result);
+        return result;
     }
 }
