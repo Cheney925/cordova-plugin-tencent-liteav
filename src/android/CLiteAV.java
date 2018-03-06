@@ -207,15 +207,6 @@ public class CLiteAV extends CordovaPlugin {
      * @return
      */
     private boolean getVersion(final CallbackContext callbackContext) {
-        int[] sdkver = TXLivePusher.getSDKVersion();
-        if (sdkver != null && sdkver.length > 0) {
-            String ver = "" + sdkver[0];
-            for (int i = 1; i < sdkver.length; ++i) {
-                ver += "." + sdkver[i];
-            }
-            callbackContext.success(ver);
-            return true;
-        }
         callbackContext.error("Cannot get rtmp sdk version.");
         return false;
     }
