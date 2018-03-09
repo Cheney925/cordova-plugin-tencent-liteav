@@ -207,15 +207,6 @@ public class CLiteAV extends CordovaPlugin {
      * @return
      */
     private boolean getVersion(final CallbackContext callbackContext) {
-        int[] sdkver = TXLivePusher.getSDKVersion();
-        if (sdkver != null && sdkver.length > 0) {
-            String ver = "" + sdkver[0];
-            for (int i = 1; i < sdkver.length; ++i) {
-                ver += "." + sdkver[i];
-            }
-            callbackContext.success(ver);
-            return true;
-        }
         callbackContext.error("Cannot get rtmp sdk version.");
         return false;
     }
@@ -270,7 +261,7 @@ public class CLiteAV extends CordovaPlugin {
                 public void run() {
                     FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                             screenWidth,
-                            driveWidth,
+                            driveWidth-getStatusBarHeight(),
                             Gravity.TOP
                     );
                     lp.setMargins(driveHeight-screenWidth, 0, driveHeight-screenWidth, 0);
@@ -388,5 +379,15 @@ public class CLiteAV extends CordovaPlugin {
     public boolean resume(){
         mLivePlayer.resume();
         return true;
+    }
+    // 获取状态栏高度
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = this.activity.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = this.activity.getResources().getDimensionPixelSize(resourceId);
+        }
+        System.out.println("获取状态栏高度=======>"+result);
+        return result;
     }
 }
