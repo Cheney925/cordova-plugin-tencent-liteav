@@ -7,6 +7,7 @@
 
 @property UIView *videoView;
 @property TXLivePlayer *livePlayer;
+@property TXLivePush *livePusher;
 @property int playerWidth;
 @property int playerHeight;
 @property NSDictionary *netStatus;
@@ -17,5 +18,7 @@
 - (void) resume:(CDVInvokedUrlCommand*)command;
 - (void) setPlayMode:(CDVInvokedUrlCommand*)command;
 - (void) getNetStatus:(CDVInvokedUrlCommand*)command;
+- (void) startLinkMic:(CDVInvokedUrlCommand*)command;
+- (void) stopLinkMic:(CDVInvokedUrlCommand*)command;
 
 @end

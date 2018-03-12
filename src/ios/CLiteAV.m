@@ -21,6 +21,7 @@
 
 @synthesize videoView;
 @synthesize livePlayer;
+@synthesize livePusher;
 @synthesize playerWidth;
 @synthesize playerHeight;
 @synthesize netStatus;
@@ -30,7 +31,7 @@
     if (self.videoView) return;
     
 //    self.videoView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.videoView = [[UIView alloc] initWithFrame:CGRectMake(0.0,0.0,self.playerWidth,self.playerHeight)];
+    self.videoView = [[UIView alloc] initWithFrame:CGRectMake(0.0,20,self.playerWidth,self.playerHeight)];
     
     [self.webView.superview addSubview:self.videoView];
     
@@ -142,10 +143,10 @@
             [self.videoView setFrame:[[UIScreen mainScreen] bounds]];
             break;
         case 1:
-            [self.videoView setFrame:CGRectMake(0.0,0.0,self.playerWidth,self.playerHeight)];
+            [self.videoView setFrame:CGRectMake(0.0,20,self.playerWidth,self.playerHeight)];
             break;
         default:
-            [self.videoView setFrame:CGRectMake(0.0,0.0,self.playerWidth,self.playerHeight)];
+            [self.videoView setFrame:CGRectMake(0.0,20,self.playerWidth,self.playerHeight)];
             break;
     }
 }
@@ -155,9 +156,33 @@
     if (!self.livePlayer) return;
     [self.livePlayer stopPlay];
     [self.livePlayer removeVideoWidget];
+    
+    if (livePusher) {
+        [livePusher stopPush];
+    };
+    
     [self destroyVideoView];
     
     [self.webView setBackgroundColor:[UIColor whiteColor]];
+}
+
+// 开始连麦
+- (void) startLinkMic:(CDVInvokedUrlCommand*)command {
+    NSDictionary* optionsDict = [command.arguments objectAtIndex:0];
+    NSString* url = [optionsDict objectForKey:@"url"]; // 播放地址
+    
+    TXLivePushConfig* _config = [[TXLivePushConfig alloc] init];
+    livePusher = [[TXLivePush alloc] initWithConfig:_config];
+    
+    [livePusher setVideoQuality:VIDEO_QUALITY_LINKMIC_MAIN_PUBLISHER adjustBitrate:YES adjustResolution:NO];
+    
+    [livePusher startPush:url];
+}
+
+// 停止连麦
+- (void) stopLinkMic:(CDVInvokedUrlCommand*)command {
+    if (!livePusher) return;
+    [livePusher stopPush];
 }
 
 // 监听播放事件

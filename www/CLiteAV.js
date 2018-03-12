@@ -58,7 +58,7 @@ CLiteAV.prototype.getNetStatus = function(success, error) {
 }
 
 // 开启连麦
-CLiteAV.prototype.startLinkMic = function(options,success, error) {
+CLiteAV.prototype.startLinkMic = function(options, success, error) {
   cordova.exec(success, error, 'CLiteAV', 'startLinkMic', [options]);
 }
 
