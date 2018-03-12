@@ -154,13 +154,13 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
             return pause();
         }else if(action.equals("resume")){
             return resume();
-        }else if(action.equals("startlinkMic")){
+        }else if(action.equals("startLinkMic")){
             final String option =  args.getString(0);
             JSONObject jsonRsp = new JSONObject(option);
             final String linkMicUrl = jsonRsp.optString("url");
-            return startlinkMic(linkMicUrl,callbackContext);
-        }else if(action.equals("stoplinkMic")){
-            return stoplinkMic(callbackContext);
+            return startLinkMic(linkMicUrl,callbackContext);
+        }else if(action.equals("stopLinkMic")){
+            return stopLinkMic(callbackContext);
         }
         callbackContext.error("Undefined action: " + action);
         return true;
@@ -417,7 +417,7 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
     }
 
     // 开启连麦
-    private  boolean startlinkMic(final String url,final CallbackContext callbackContext) {
+    private  boolean startLinkMic(final String url,final CallbackContext callbackContext) {
         mLivePusher = new TXLivePusher(this.context);
         mLivePusher.setBeautyFilter(mBeautyStyle, mBeautyLevel, mWhiteningLevel, mRuddyLevel);
         mLivePushConfig = new TXLivePushConfig();
@@ -443,11 +443,11 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
                 mLivePusher.startPusher(url.trim());
             }
         });
-
+        callbackContext.success("开始连麦");
         return true;
     }
     // 关闭连麦
-    private boolean stoplinkMic(final CallbackContext callbackContext) {
+    private boolean stopLinkMic(final CallbackContext callbackContext) {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -455,9 +455,9 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
                 mLivePusher.stopScreenCapture();
                 mLivePusher.setPushListener(null);
                 mLivePusher.stopPusher();
-                callbackContext.success("停止连麦");
             }
         });
+        callbackContext.success("停止连麦");
         return true;
     }
     // 播放状态监听
@@ -489,12 +489,12 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
         if (event < 0) {
             Toast.makeText(this.context, param.getString(TXLiveConstants.EVT_DESCRIPTION), Toast.LENGTH_SHORT).show();
             if(event == TXLiveConstants.PUSH_ERR_OPEN_CAMERA_FAIL){
-                stoplinkMic(callbackContext);
+                stopLinkMic(callbackContext);
             }
         }
 
         if (event == TXLiveConstants.PUSH_ERR_NET_DISCONNECT) {
-            stoplinkMic(callbackContext);
+            stopLinkMic(callbackContext);
         }
         else if (event == TXLiveConstants.PUSH_WARNING_HW_ACCELERATION_FAIL) {
             Toast.makeText(this.context, param.getString(TXLiveConstants.EVT_DESCRIPTION), Toast.LENGTH_SHORT).show();
@@ -502,10 +502,10 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
             mLivePusher.setConfig(mLivePushConfig);
         }
         else if (event == TXLiveConstants.PUSH_ERR_SCREEN_CAPTURE_UNSURPORT) {
-            stoplinkMic(callbackContext);
+            stopLinkMic(callbackContext);
         }
         else if (event == TXLiveConstants.PUSH_ERR_SCREEN_CAPTURE_START_FAILED) {
-            stoplinkMic(callbackContext);
+            stopLinkMic(callbackContext);
         } else if (event == TXLiveConstants.PUSH_EVT_CHANGE_RESOLUTION) {
             Log.d(CAV, "change resolution to " + param.getInt(TXLiveConstants.EVT_PARAM2) + ", bitrate to" + param.getInt(TXLiveConstants.EVT_PARAM1));
         } else if (event == TXLiveConstants.PUSH_EVT_CHANGE_BITRATE) {
