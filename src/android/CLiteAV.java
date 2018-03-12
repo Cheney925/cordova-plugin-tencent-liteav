@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 
 import android.graphics.Color;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +17,7 @@ import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import org.apache.cordova.*;
 
@@ -29,7 +33,8 @@ import com.tencent.rtmp.ui.*;
  * Created by ztl on 2018/1/17.
  */
 
-public class CLiteAV extends CordovaPlugin {
+public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLivePushListener{
+    private static final String CAV = CLiteAV.class.getSimpleName();
 
     private Context context;
     private Activity activity;
@@ -47,6 +52,7 @@ public class CLiteAV extends CordovaPlugin {
     private TXLivePlayer mLivePlayer = null;
 
     private TXLivePlayConfig mPlayConfig;
+    private TXLivePushConfig mLivePushConfig;
 
     private static final int  CACHE_STRATEGY_FAST  = 1;  //极速
     private static final int  CACHE_STRATEGY_SMOOTH = 2;  //流畅
@@ -65,6 +71,13 @@ public class CLiteAV extends CordovaPlugin {
 
     private int              screenHeigh;
     private int              screenWidth;
+
+    private int              mBeautyLevel = 5;
+    private int              mWhiteningLevel = 3;
+    private int              mRuddyLevel = 2;
+    private int              mBeautyStyle = TXLiveConstants.BEAUTY_STYLE_SMOOTH;
+
+    private boolean          mMainPublish = true;
 
 
     private String[] permissions = {
@@ -141,6 +154,13 @@ public class CLiteAV extends CordovaPlugin {
             return pause();
         }else if(action.equals("resume")){
             return resume();
+        }else if(action.equals("startlinkMic")){
+            final String option =  args.getString(0);
+            JSONObject jsonRsp = new JSONObject(option);
+            final String linkMicUrl = jsonRsp.optString("url");
+            return startlinkMic(linkMicUrl,callbackContext);
+        }else if(action.equals("stoplinkMic")){
+            return stoplinkMic(callbackContext);
         }
         callbackContext.error("Undefined action: " + action);
         return true;
@@ -207,6 +227,7 @@ public class CLiteAV extends CordovaPlugin {
      * @return
      */
     private boolean getVersion(final CallbackContext callbackContext) {
+
         callbackContext.error("Cannot get rtmp sdk version.");
         return false;
     }
@@ -225,20 +246,22 @@ public class CLiteAV extends CordovaPlugin {
             callbackContext.error("10004");
             return false;
         }
+        // 开始推流
+        mLivePlayer = new TXLivePlayer(activity);
+        // 设置自动配置
+        setCacheStrategy(CACHE_STRATEGY_AUTO);
+        mLivePlayer.setConfig(mPlayConfig);
+
+        // 设置图像渲染角度
+        mLivePlayer.setRenderRotation(mCurrentRenderRotation);
+        // 设置横屏、竖屏
+        mLivePlayer.setRenderMode(mCurrentRenderMode);
+        mLivePlayer.setPlayListener(this);
         // 准备 videoView，没有的话生成
         activity.runOnUiThread(new Runnable() {
             public void run() {
                 prepareVideoView(width,heigh);
-                // 开始推流
-                mLivePlayer = new TXLivePlayer(activity);
-                // 设置自动配置
-                setCacheStrategy(CACHE_STRATEGY_AUTO);
-                mLivePlayer.setConfig(mPlayConfig);
 
-                // 设置图像渲染角度
-                mLivePlayer.setRenderRotation(mCurrentRenderRotation);
-                // 设置横屏、竖屏
-                mLivePlayer.setRenderMode(mCurrentRenderMode);
 
                 // 将视频绑定到 videoView
                 mLivePlayer.setPlayerView(videoView);
@@ -254,34 +277,37 @@ public class CLiteAV extends CordovaPlugin {
             callbackContext.error("切换失败");
             return false;
         }
-//        mCurrentRenderMode = playMode;
-//        mLivePlayer.setRenderMode(mCurrentRenderMode);
-        if(playMode == 0){
-            activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                            screenWidth,
-                            driveWidth-getStatusBarHeight(),
-                            Gravity.TOP
-                    );
-                    lp.setMargins(driveHeight-screenWidth, 0, driveHeight-screenWidth, 0);
-                    videoView.setLayoutParams(lp);
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(playMode == 0){
+                    activity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                                    screenWidth,
+                                    driveWidth-getStatusBarHeight(),
+                                    Gravity.TOP
+                            );
+                            lp.setMargins(driveHeight-screenWidth, 0, driveHeight-screenWidth, 0);
+                            videoView.setLayoutParams(lp);
+                        }
+                    });
+                }else{
+                    System.out.println(screenHeigh);
+                    activity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                                    driveWidth,
+                                    screenHeigh,
+                                    Gravity.TOP
+                            );
+                            lp.setMargins(0, 0, 0, 0);
+                            videoView.setLayoutParams(lp);
+                        }
+                    });
                 }
-            });
-        }else{
-            System.out.println(screenHeigh);
-            activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                            driveWidth,
-                            screenHeigh,
-                            Gravity.TOP
-                    );
-                    lp.setMargins(0, 0, 0, 0);
-                    videoView.setLayoutParams(lp);
-                }
-            });
-        }
+            }
+        });
         callbackContext.success("切换成功");
         return true;
     }
@@ -299,17 +325,16 @@ public class CLiteAV extends CordovaPlugin {
         activity.runOnUiThread(new Runnable() {
             public void run() {
                 // 停止播放
-                mLivePlayer.stopPlay(true);
+                mLivePlayer.stopPlay(false);
                 // 销毁 videoView
                 destroyVideoView();
                 // 移除 pusher 引用
                 mLivePlayer = null;
             }
         });
+        callbackContext.success("停止播放视频");
         return true;
     }
-
-
 
     /**
      * check application's permissions
@@ -389,5 +414,136 @@ public class CLiteAV extends CordovaPlugin {
         }
         System.out.println("获取状态栏高度=======>"+result);
         return result;
+    }
+
+    // 开启连麦
+    private  boolean startlinkMic(final String url,final CallbackContext callbackContext) {
+        mLivePusher = new TXLivePusher(this.context);
+        mLivePusher.setBeautyFilter(mBeautyStyle, mBeautyLevel, mWhiteningLevel, mRuddyLevel);
+        mLivePushConfig = new TXLivePushConfig();
+        // 回声消除
+        mLivePushConfig.enableAEC(true);
+        // 开启纯音频推流
+        mLivePushConfig.enablePureAudioPush(true);
+        // 关闭高清摄像头
+        mLivePushConfig.enableHighResolutionCaptureMode(false);
+
+        mLivePushConfig.setPauseFlag(TXLiveConstants.PAUSE_FLAG_PAUSE_VIDEO | TXLiveConstants.PAUSE_FLAG_PAUSE_AUDIO);
+        mLivePushConfig.setConnectRetryCount(10);
+        mLivePushConfig.setConnectRetryInterval(2);
+        mLivePushConfig.setRtmpChannelType(TXLiveConstants.RTMP_CHANNEL_TYPE_PRIVATE);
+
+        mLivePusher.setConfig(mLivePushConfig);
+
+        mLivePusher.setVideoQuality(mMainPublish ? TXLiveConstants.VIDEO_QUALITY_LINKMIC_MAIN_PUBLISHER : TXLiveConstants.VIDEO_QUALITY_LINKMIC_SUB_PUBLISHER,false,false);
+        mLivePusher.setPushListener(this);
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mLivePusher.startPusher(url.trim());
+            }
+        });
+
+        return true;
+    }
+    // 关闭连麦
+    private boolean stoplinkMic(final CallbackContext callbackContext) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mLivePusher.stopCameraPreview(true);
+                mLivePusher.stopScreenCapture();
+                mLivePusher.setPushListener(null);
+                mLivePusher.stopPusher();
+                callbackContext.success("停止连麦");
+            }
+        });
+        return true;
+    }
+    // 播放状态监听
+    @Override
+    public void onPlayEvent(int event, Bundle param) {
+        String playEventLog = "receive event: " + event + ", " + param.getString(TXLiveConstants.EVT_DESCRIPTION);
+        Log.d(CAV, playEventLog);
+
+        if (event == TXLiveConstants.PLAY_EVT_PLAY_BEGIN) {
+            Log.d("AutoMonitor", "PlayFirstRender,cost=" +(System.currentTimeMillis()));
+        } else if (event == TXLiveConstants.PLAY_ERR_NET_DISCONNECT || event == TXLiveConstants.PLAY_EVT_PLAY_END) {
+            stopPlay(callbackContext);
+        } else if (event == TXLiveConstants.PLAY_EVT_PLAY_LOADING){
+        } else if (event == TXLiveConstants.PLAY_EVT_RCV_FIRST_I_FRAME) {
+        } else if (event == TXLiveConstants.PLAY_EVT_CHANGE_RESOLUTION) {
+        }
+//
+//        if (event < 0) {
+//            Toast.makeText(this.context, param.getString(TXLiveConstants.EVT_DESCRIPTION), Toast.LENGTH_SHORT).show();
+//        }
+    }
+
+    // 推流状态监听
+    @Override
+    public void onPushEvent(int event, Bundle param) {
+        String msg = param.getString(TXLiveConstants.EVT_DESCRIPTION);
+
+        //错误还是要明确的报一下
+        if (event < 0) {
+            Toast.makeText(this.context, param.getString(TXLiveConstants.EVT_DESCRIPTION), Toast.LENGTH_SHORT).show();
+            if(event == TXLiveConstants.PUSH_ERR_OPEN_CAMERA_FAIL){
+                stoplinkMic(callbackContext);
+            }
+        }
+
+        if (event == TXLiveConstants.PUSH_ERR_NET_DISCONNECT) {
+            stoplinkMic(callbackContext);
+        }
+        else if (event == TXLiveConstants.PUSH_WARNING_HW_ACCELERATION_FAIL) {
+            Toast.makeText(this.context, param.getString(TXLiveConstants.EVT_DESCRIPTION), Toast.LENGTH_SHORT).show();
+            mLivePushConfig.setHardwareAcceleration(TXLiveConstants.ENCODE_VIDEO_SOFTWARE);
+            mLivePusher.setConfig(mLivePushConfig);
+        }
+        else if (event == TXLiveConstants.PUSH_ERR_SCREEN_CAPTURE_UNSURPORT) {
+            stoplinkMic(callbackContext);
+        }
+        else if (event == TXLiveConstants.PUSH_ERR_SCREEN_CAPTURE_START_FAILED) {
+            stoplinkMic(callbackContext);
+        } else if (event == TXLiveConstants.PUSH_EVT_CHANGE_RESOLUTION) {
+            Log.d(CAV, "change resolution to " + param.getInt(TXLiveConstants.EVT_PARAM2) + ", bitrate to" + param.getInt(TXLiveConstants.EVT_PARAM1));
+        } else if (event == TXLiveConstants.PUSH_EVT_CHANGE_BITRATE) {
+            Log.d(CAV, "change bitrate to" + param.getInt(TXLiveConstants.EVT_PARAM1));
+        }
+    }
+
+    // 网络状况监听
+    @Override
+    public void onNetStatus(Bundle status) {
+        String str = getNetStatusString(status);
+        Log.d(CAV, "Current status, CPU:"+status.getString(TXLiveConstants.NET_STATUS_CPU_USAGE)+
+                ", RES:"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_WIDTH)+"*"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_HEIGHT)+
+                ", SPD:"+status.getInt(TXLiveConstants.NET_STATUS_NET_SPEED)+"Kbps"+
+                ", FPS:"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_FPS)+
+                ", ARA:"+status.getInt(TXLiveConstants.NET_STATUS_AUDIO_BITRATE)+"Kbps"+
+                ", VRA:"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_BITRATE)+"Kbps");
+    }
+    //公用打印辅助函数
+    protected String getNetStatusString(Bundle status) {
+        String str = String.format("%-14s %-14s %-12s\n%-8s %-8s %-8s %-8s\n%-14s %-14s\n%-14s %-14s",
+                "CPU:"+status.getString(TXLiveConstants.NET_STATUS_CPU_USAGE),
+                "RES:"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_WIDTH)+"*"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_HEIGHT),
+                "SPD:"+status.getInt(TXLiveConstants.NET_STATUS_NET_SPEED)+"Kbps",
+                "JIT:"+status.getInt(TXLiveConstants.NET_STATUS_NET_JITTER),
+                "FPS:"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_FPS),
+                "GOP:"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_GOP)+"s",
+                "ARA:"+status.getInt(TXLiveConstants.NET_STATUS_AUDIO_BITRATE)+"Kbps",
+                "QUE:"+status.getInt(TXLiveConstants.NET_STATUS_CODEC_CACHE)
+                        +"|"+status.getInt(TXLiveConstants.NET_STATUS_CACHE_SIZE)
+                        +","+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_CACHE_SIZE)
+                        +","+status.getInt(TXLiveConstants.NET_STATUS_V_DEC_CACHE_SIZE)
+                        +"|"+status.getInt(TXLiveConstants.NET_STATUS_AV_RECV_INTERVAL)
+                        +","+status.getInt(TXLiveConstants.NET_STATUS_AV_PLAY_INTERVAL)
+                        +","+status.getFloat(TXLiveConstants.NET_STATUS_AUDIO_PLAY_SPEED),
+                "VRA:"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_BITRATE)+"Kbps",
+                "SVR:"+status.getString(TXLiveConstants.NET_STATUS_SERVER_IP),
+                "AUDIO:"+status.getString(TXLiveConstants.NET_STATUS_AUDIO_INFO));
+        return str;
     }
 }
