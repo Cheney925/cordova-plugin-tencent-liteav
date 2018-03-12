@@ -58,13 +58,13 @@ CLiteAV.prototype.getNetStatus = function(success, error) {
 }
 
 // 开启连麦
-CLiteAV.prototype.startlinkMic = function(success, error) {
-  cordova.exec(success, error, 'CLiteAV', 'startlinkMic', [options]);
+CLiteAV.prototype.startLinkMic = function(options,success, error) {
+  cordova.exec(success, error, 'CLiteAV', 'startLinkMic', [options]);
 }
 
 // 关闭连麦
-CLiteAV.prototype.stoplinkMic = function(success, error) {
-  cordova.exec(success, error, 'CLiteAV', 'stoplinkMic', []);
+CLiteAV.prototype.stopLinkMic = function(success, error) {
+  cordova.exec(success, error, 'CLiteAV', 'stopLinkMic', []);
 }
 
 var newCLiteAV = new CLiteAV();
