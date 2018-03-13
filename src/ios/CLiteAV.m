@@ -110,7 +110,7 @@
     @try {
         [self.livePlayer startPlay:url type:playType];
         // 设置播放成功回调
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[CLiteAV] Played Successful!"];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[CLiteAV] Played successful!"];
     } @catch (NSException *ex) {
         // 设置播放成功回调
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"[CLiteAV] Played Fail!"];
@@ -124,13 +124,33 @@
 // 暂停播放
 - (void) pause:(CDVInvokedUrlCommand*)command {
     if (!self.livePlayer) return;
-    [self.livePlayer pause];
+    
+    CDVPluginResult *pluginResult;
+    @try {
+        [self.livePlayer pause];
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[CLiteAV] Player paused successful!"];
+    } @catch (NSException *ex) {
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"[CLiteAV] Player paused fail!"];
+    }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 // 恢复播放
 - (void) resume:(CDVInvokedUrlCommand*)command {
     if (!self.livePlayer) return;
-    [self.livePlayer resume];
+    
+    CDVPluginResult *pluginResult;
+    @try {
+        [self.livePlayer resume];
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[CLiteAV] Player resumed successful!"];
+    } @catch (NSException *ex) {
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"[CLiteAV] Player resumed fail!"];
+    }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 // 设置播放模式
@@ -138,32 +158,55 @@
     if (!self.livePlayer) return;
     
     int mode = [[command.arguments objectAtIndex:0] intValue];
-    switch (mode) {
-        case 0:
-            [self.videoView setFrame:[[UIScreen mainScreen] bounds]];
-            break;
-        case 1:
-            [self.videoView setFrame:CGRectMake(0.0,20,self.playerWidth,self.playerHeight)];
-            break;
-        default:
-            [self.videoView setFrame:CGRectMake(0.0,20,self.playerWidth,self.playerHeight)];
-            break;
+    
+    CDVPluginResult *pluginResult;
+    @try {
+        switch (mode) {
+            case 0:
+                [self.videoView setFrame:[[UIScreen mainScreen] bounds]];
+                break;
+            case 1:
+                [self.videoView setFrame:CGRectMake(0.0,20,self.playerWidth,self.playerHeight)];
+                break;
+            default:
+                [self.videoView setFrame:CGRectMake(0.0,20,self.playerWidth,self.playerHeight)];
+                break;
+        }
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[CLiteAV] Play mode setted successful!"];
+    } @catch (NSException *ex) {
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"[CLiteAV] Play mode setted fail!"];
     }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    
+    
 }
 
 // 退出播放
 - (void) stopPlay:(CDVInvokedUrlCommand*)command {
     if (!self.livePlayer) return;
-    [self.livePlayer stopPlay];
-    [self.livePlayer removeVideoWidget];
     
-    if (livePusher) {
-        [livePusher stopPush];
-    };
-    
-    [self destroyVideoView];
-    
-    [self.webView setBackgroundColor:[UIColor whiteColor]];
+    CDVPluginResult *pluginResult;
+    @try {
+        [self.livePlayer stopPlay];
+        [self.livePlayer removeVideoWidget];
+        
+        if (livePusher) {
+            [livePusher stopPush];
+        };
+        
+        [self destroyVideoView];
+        
+        [self.webView setBackgroundColor:[UIColor whiteColor]];
+        
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[CLiteAV] Player stopped successful!"];
+    } @catch (NSException *ex) {
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"[CLiteAV] Player stopped fail!"];
+    }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 // 开始连麦
@@ -176,13 +219,32 @@
     
     [livePusher setVideoQuality:VIDEO_QUALITY_LINKMIC_MAIN_PUBLISHER adjustBitrate:YES adjustResolution:NO];
     
-    [livePusher startPush:url];
+    CDVPluginResult *pluginResult;
+    @try {
+        [livePusher startPush:url];
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[CLiteAV] Link mic successful!"];
+    } @catch (NSException *ex) {
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"[CLiteAV] Link mic fail!"];
+    }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 // 停止连麦
 - (void) stopLinkMic:(CDVInvokedUrlCommand*)command {
     if (!livePusher) return;
-    [livePusher stopPush];
+    
+    CDVPluginResult *pluginResult;
+    @try {
+        [livePusher stopPush];
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[CLiteAV] Link mic successful!"];
+    } @catch (NSException *ex) {
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"[CLiteAV] Link mic fail!"];
+    }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 // 监听播放事件
