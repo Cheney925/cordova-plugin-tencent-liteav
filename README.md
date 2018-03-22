@@ -72,6 +72,31 @@
 * `successCallback` 成功回调 
 * `errorCallback` 失败回调
 
+### 开启连麦 CLiteAV.startLinkMic()
+`CLiteAV.startLinkMic(options, successCallback, errorCallback)`
+
+* `options` options中必须包含连麦推流的地址url参数，暂无其他参数
+* `successCallback` 成功回调 
+* `errorCallback` 失败回调
+
+### 关闭连麦 CLiteAV.stopLinkMic()
+`CLiteAV.stopLinkMic(successCallback, errorCallback)`
+
+* `successCallback` 成功回调 
+* `errorCallback` 失败回调
+
+### 开启录屏推流 CLiteAV.startScreenPush()
+`CLiteAV.startScreenPush(options, successCallback, errorCallback)`
+
+* `options` options中必须包含录屏推流的地址url参数，暂无其他参数
+* `successCallback` 成功回调 
+* `errorCallback` 失败回调
+
+### 关闭连麦 CLiteAV.stopScreenPush()
+`CLiteAV.stopScreenPush(successCallback, errorCallback)`
+
+* `successCallback` 成功回调
+* `errorCallback` 失败回调
 
 ## Demo
 基于Ionic 3的Demo：[https://github.com/Cheney925/ionic-for-cordova-plugin-tencent-LiteAV](https://github.com/Cheney925/ionic-for-cordova-plugin-tencent-LiteAV)

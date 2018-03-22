@@ -74,7 +74,7 @@ CLiteAV.prototype.startScreenPush = function(options, success, error) {
 
 // 结束录屏推流
 CLiteAV.prototype.stopScreenPush = function(success, error) {
-  cordova.exec(success, error, 'CLiteAV', 'stopScreenPush', [options]);
+  cordova.exec(success, error, 'CLiteAV', 'stopScreenPush', []);
 }
 
 var newCLiteAV = new CLiteAV();
