@@ -79,6 +79,7 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
 
     private boolean          mMainPublish = true;
 
+    private String           netStatus;
 
     private String[] permissions = {
             Manifest.permission.INTERNET,
@@ -161,6 +162,12 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
             return startLinkMic(linkMicUrl,callbackContext);
         }else if(action.equals("stopLinkMic")){
             return stopLinkMic(callbackContext);
+        }else if(action.equals("getNetStatus")){
+            if(netStatus!=null){
+                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK,netStatus));
+            }else {
+                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR,"未获得网络状态"));
+            }
         }
         callbackContext.error("Undefined action: " + action);
         return true;
@@ -285,7 +292,7 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
                         public void run() {
                             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                                     screenWidth,
-                                    driveWidth-getStatusBarHeight(),
+                                    driveWidth,
                                     Gravity.TOP
                             );
                             lp.setMargins(driveHeight-screenWidth, 0, driveHeight-screenWidth, 0);
@@ -544,6 +551,23 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
                 "VRA:"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_BITRATE)+"Kbps",
                 "SVR:"+status.getString(TXLiveConstants.NET_STATUS_SERVER_IP),
                 "AUDIO:"+status.getString(TXLiveConstants.NET_STATUS_AUDIO_INFO));
+        netStatus = "{\"CPU\":\""+status.getString(TXLiveConstants.NET_STATUS_CPU_USAGE)+
+                "\",\"RES\":\""+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_WIDTH)+"*"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_HEIGHT)+
+                "\",\"SPD\":\""+status.getInt(TXLiveConstants.NET_STATUS_NET_SPEED)+"Kbps"+
+                "\",\"JIT\":\""+status.getInt(TXLiveConstants.NET_STATUS_NET_JITTER)+
+                "\",\"FPS\":\""+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_FPS)+
+                "\",\"GOP\":\""+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_GOP)+"s"+
+                "\",\"ARA\":\""+status.getInt(TXLiveConstants.NET_STATUS_AUDIO_BITRATE)+"Kbps"+
+                "\",\"QUE\":\""+status.getInt(TXLiveConstants.NET_STATUS_CODEC_CACHE)
+                        +"|"+status.getInt(TXLiveConstants.NET_STATUS_CACHE_SIZE)
+                        +","+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_CACHE_SIZE)
+                        +","+status.getInt(TXLiveConstants.NET_STATUS_V_DEC_CACHE_SIZE)
+                        +"|"+status.getInt(TXLiveConstants.NET_STATUS_AV_RECV_INTERVAL)
+                        +","+status.getInt(TXLiveConstants.NET_STATUS_AV_PLAY_INTERVAL)
+                        +","+status.getFloat(TXLiveConstants.NET_STATUS_AUDIO_PLAY_SPEED)+
+                "\",\"VRA\":\""+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_BITRATE)+"Kbps"+
+                "\",\"SVR\":\""+status.getString(TXLiveConstants.NET_STATUS_SERVER_IP)+
+                "\",\"AUDIO\":\""+status.getString(TXLiveConstants.NET_STATUS_AUDIO_INFO)+"\"}";
         return str;
     }
 }
