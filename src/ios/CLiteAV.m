@@ -31,7 +31,7 @@
     if (self.videoView) return;
     
 //    self.videoView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.videoView = [[UIView alloc] initWithFrame:CGRectMake(0.0,20,self.playerWidth,self.playerHeight)];
+    self.videoView = [[UIView alloc] initWithFrame:CGRectMake(0.0,0.0,self.playerWidth,self.playerHeight)];
     
     [self.webView.superview addSubview:self.videoView];
     
@@ -169,7 +169,7 @@
                 [self.videoView setFrame:CGRectMake(0.0,20,self.playerWidth,self.playerHeight)];
                 break;
             default:
-                [self.videoView setFrame:CGRectMake(0.0,20,self.playerWidth,self.playerHeight)];
+                [self.videoView setFrame:CGRectMake(0.0,0.0,self.playerWidth,self.playerHeight)];
                 break;
         }
         // 设置播放成功回调
