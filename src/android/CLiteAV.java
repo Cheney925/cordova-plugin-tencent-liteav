@@ -7,7 +7,7 @@ import android.content.Intent;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.text.TextUtils;
+import android.util.*;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -112,11 +112,12 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
         mPlayConfig = new TXLivePlayConfig();
         WindowManager wm = (WindowManager) cordova.getActivity()
                 .getSystemService(Context.WINDOW_SERVICE);
-
-        driveWidth = wm.getDefaultDisplay().getWidth();
-        driveHeight = wm.getDefaultDisplay().getHeight();
+        DisplayMetrics dm = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(dm);
+        driveWidth =  dm.widthPixels;
+        driveHeight = dm.heightPixels;
         screenHeigh = (9*driveWidth/16);
-        screenWidth = (16*driveWidth/9);
+        screenWidth = (16*driveHeight/9);
     }
 
     /**
@@ -198,11 +199,11 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
         // 设置 webView 透明
         System.out.println(screenHeigh);
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                driveWidth,
-                screenHeigh,
+                screenWidth,
+                driveHeight,
                 Gravity.TOP
         );
-        lp.setMargins(0,0,0,0);
+        lp.setMargins(driveWidth-screenWidth, 0, driveWidth-screenWidth, 0);
         videoView.setLayoutParams(lp);
         // 插入视图
         rootView.addView(videoView);
@@ -292,10 +293,10 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
                         public void run() {
                             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                                     screenWidth,
-                                    driveWidth,
+                                    driveHeight,
                                     Gravity.TOP
                             );
-                            lp.setMargins(driveHeight-screenWidth, 0, driveHeight-screenWidth, 0);
+                            lp.setMargins(driveWidth-screenWidth, 0, driveWidth-screenWidth, 0);
                             videoView.setLayoutParams(lp);
                         }
                     });
