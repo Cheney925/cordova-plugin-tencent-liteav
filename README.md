@@ -18,10 +18,11 @@
 ## 使用 Usage
 ### 直播/播放视频 CLiteAV.startPlay()
 
-`CLiteAV.startPlay(url, playType, successCallback, errorCallback)`
+`CLiteAV.startPlay(options, successCallback, errorCallback)`
 
-* `url` 视频流地址
-* `playType` 视频流类型，参考`CLiteAV.PLAY_TYPE`
+* `options` 播放参数，包含url, playType, playMode
+* `options.url` 视频流播放地址
+* `options.playType` 视频流类型，参考`CLiteAV.PLAY_TYPE`
 
 	```
 	PLAY_TYPE = {
@@ -34,6 +35,7 @@
 	  LOCAL_VIDEO:   6  // 手机本地视频文件
 	}
 	```
+* `options.playMode` 播放模式，0为横屏，1为竖屏
 * `successCallback` 播放成功回调
 * `errorCallback` 播放失败回调
 
