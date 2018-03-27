@@ -32,9 +32,6 @@
 - (void) prepareVideoView {
     if (self.videoView) return;
     
-    CGRect rectStatus = [[UIApplication sharedApplication] statusBarFrame];
-    self.statusBarHeight = rectStatus.size.height;
-    
     [self updateVideoView];
     
     [self.webView.superview addSubview:self.videoView];
@@ -165,6 +162,11 @@
 
 // 更新播放器高宽
 - (void) updateVideoView {
+    CGRect rectStatus = [[UIApplication sharedApplication] statusBarFrame];
+    if (rectStatus.size.height != 0) {
+        self.statusBarHeight = rectStatus.size.height;
+    }
+    
     if (self.playerMode == 0) {
         if (!self.videoView) {
             self.videoView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
