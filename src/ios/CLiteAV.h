@@ -10,6 +10,8 @@
 @property TXLivePush *livePusher;
 @property int playerWidth;
 @property int playerHeight;
+@property int playerMode;
+@property int statusBarHeight;
 @property NSDictionary *netStatus;
 
 - (void) startPlay:(CDVInvokedUrlCommand*)command;
@@ -22,3 +24,4 @@
 - (void) stopLinkMic:(CDVInvokedUrlCommand*)command;
 
 @end
+

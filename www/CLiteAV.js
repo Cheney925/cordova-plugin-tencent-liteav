@@ -25,8 +25,7 @@ function CLiteAV() {
  * @params options  {Object}  选项
  *           |- url        {String}  播放地址
  *           |- playType   {Number}  播放类型，参考PLAY_TYPE
- *           |- width      {Number}  [可选]播放器宽度
- *           |- height     {Number}  [可选]播放器高度
+ *           |- playMode   {Number}  播放模式，1为竖屏，0为横屏
  */
 CLiteAV.prototype.startPlay = function(options, success, error) {
   cordova.exec(success, error, 'CLiteAV', 'startPlay', [options]);

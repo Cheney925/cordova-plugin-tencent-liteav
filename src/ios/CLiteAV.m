@@ -24,14 +24,18 @@
 @synthesize livePusher;
 @synthesize playerWidth;
 @synthesize playerHeight;
+@synthesize playerMode;
+@synthesize statusBarHeight;
 @synthesize netStatus;
 
 // 准备放置视频的视图
 - (void) prepareVideoView {
     if (self.videoView) return;
     
-//    self.videoView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.videoView = [[UIView alloc] initWithFrame:CGRectMake(0.0,0.0,self.playerWidth,self.playerHeight)];
+    CGRect rectStatus = [[UIApplication sharedApplication] statusBarFrame];
+    self.statusBarHeight = rectStatus.size.height;
+    
+    [self updateVideoView];
     
     [self.webView.superview addSubview:self.videoView];
     
@@ -81,20 +85,10 @@
             break;
     }
     
+    
     // 设置播放器大小
-    int width = [[optionsDict valueForKey:@"width"] intValue]; // 播放器宽度
-    int height = [[optionsDict valueForKey:@"height"] intValue]; // 播放器高度
-    CGRect screenBounds = [[UIScreen mainScreen] bounds];
-    if (width && width != 0) {
-        self.playerWidth = width;
-    } else {
-        self.playerWidth = screenBounds.size.width;
-    }
-    if (height && height != 0) {
-        self.playerHeight = height;
-    } else {
-        self.playerHeight = playerWidth * 9/16;
-    }
+    int mode = [[optionsDict valueForKey:@"playMode"] intValue]; // 播放模式
+    [self updatePlayerMode:mode];
 
     // 播放视图准备
     [self prepareVideoView];
@@ -153,25 +147,49 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+// 存储播放模式，获取高宽
+- (void) updatePlayerMode:(int)mode {
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
+    switch (mode) {
+        case 0:
+            self.playerWidth = screenBounds.size.width;
+            self.playerHeight = screenBounds.size.height;
+            break;
+        case 1:
+            self.playerWidth = screenBounds.size.width;
+            self.playerHeight = self.playerWidth * 9/16;
+            break;
+    }
+    self.playerMode = mode;
+}
+
+// 更新播放器高宽
+- (void) updateVideoView {
+    if (self.playerMode == 0) {
+        if (!self.videoView) {
+            self.videoView = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+        } else {
+            [self.videoView setFrame:[[UIScreen mainScreen] bounds]];
+        }
+    } else {
+        if (!self.videoView) {
+            self.videoView = [[UIView alloc] initWithFrame:CGRectMake(0.0, self.statusBarHeight, self.playerWidth, self.playerHeight)];
+        } else {
+            [self.videoView setFrame:CGRectMake(0.0, self.statusBarHeight, self.playerWidth, self.playerHeight)];
+        }
+    }
+}
+
 // 设置播放模式
 - (void) setPlayMode:(CDVInvokedUrlCommand*)command {
     if (!self.livePlayer) return;
     
     int mode = [[command.arguments objectAtIndex:0] intValue];
+    [self updatePlayerMode:mode];
     
     CDVPluginResult *pluginResult;
     @try {
-        switch (mode) {
-            case 0:
-                [self.videoView setFrame:[[UIScreen mainScreen] bounds]];
-                break;
-            case 1:
-                [self.videoView setFrame:CGRectMake(0.0,20,self.playerWidth,self.playerHeight)];
-                break;
-            default:
-                [self.videoView setFrame:CGRectMake(0.0,0.0,self.playerWidth,self.playerHeight)];
-                break;
-        }
+        [self updateVideoView];
         // 设置播放成功回调
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[CLiteAV] Play mode setted successful!"];
     } @catch (NSException *ex) {
@@ -179,8 +197,6 @@
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"[CLiteAV] Play mode setted fail!"];
     }
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    
-    
 }
 
 // 退出播放
