@@ -41,6 +41,25 @@
 
 > 调用startPlay方法时，需要将前端网页的背景颜色设置为透明，并保证没有多余的元素，否则会遮挡住播放器。这是因为WebView层在原生播放器层的上层，如果WebView有背景色，就会挡住下面的层。这么做也是为了方便前端可以在上层添加一些播放控件，如播放、暂停、全屏、进度条。可以参考Ionic Demo：[https://github.com/Cheney925/ionic-for-cordova-plugin-tencent-LiteAV](https://github.com/Cheney925/ionic-for-cordova-plugin-tencent-LiteAV)
 
+> 参照以下设置：
+```
+body.video-play {
+	background-color: transparent !important;
+	ion-app {
+		background-color: transparent !important;
+		.app-root {
+			opacity: 0;
+		}
+		.ion-page.show-page ~ .nav-decor {
+			background-color: transparent !important;
+		}
+		.content {
+			background-color: transparent !important;
+		}
+	}
+}
+```
+
 ### 停止播放 CLiteAV.stopPlay()
 
 停止播放，退出播放器，播放器会被销毁。
