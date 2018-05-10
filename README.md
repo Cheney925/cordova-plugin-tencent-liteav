@@ -77,7 +77,7 @@
 ### 开启连麦 CLiteAV.startLinkMic()
 `CLiteAV.startLinkMic(options, successCallback, errorCallback)`
 
-* `options` options中必须包含连麦推流的地址url参数，暂无其他参数
+* `options` options中必须包含连麦推流的地址url参数，暂无其他参数
 * `successCallback` 成功回调 
 * `errorCallback` 失败回调
 
@@ -90,7 +90,7 @@
 ### 开启录屏推流 CLiteAV.startScreenPush()
 `CLiteAV.startScreenPush(options, successCallback, errorCallback)`
 
-* `options` options中必须包含推流的地址url参数，暂无其他参数
+* `options` options中必须包含推流的地址url参数，暂无其他参数
 * `successCallback` 成功回调 
 * `errorCallback` 失败回调
 
