@@ -22,6 +22,7 @@
 - (void) getNetStatus:(CDVInvokedUrlCommand*)command;
 - (void) startLinkMic:(CDVInvokedUrlCommand*)command;
 - (void) stopLinkMic:(CDVInvokedUrlCommand*)command;
+- (NSString*) convertToJSONData;
 
 @end
 

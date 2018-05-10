@@ -1,5 +1,5 @@
 var exec = require('cordova/exec');
-// var channel = require('cordova/channel');
+var channel = require('cordova/channel');
 
 function CLiteAV() {
   // 视频流播放类型 
@@ -51,11 +51,6 @@ CLiteAV.prototype.setPlayMode = function(mode, success, error) {
   cordova.exec(success, error, 'CLiteAV', 'setPlayMode', [mode]);
 };
 
-// 获取当前网络状况和视频信息
-CLiteAV.prototype.getNetStatus = function(success, error) {
-  cordova.exec(success, error, 'CLiteAV', 'getNetStatus', []);
-}
-
 // 开启连麦
 CLiteAV.prototype.startLinkMic = function(options, success, error) {
   cordova.exec(success, error, 'CLiteAV', 'startLinkMic', [options]);
@@ -76,18 +71,17 @@ CLiteAV.prototype.stopScreenPush = function(success, error) {
   cordova.exec(success, error, 'CLiteAV', 'stopScreenPush', []);
 }
 
-var newCLiteAV = new CLiteAV();
+// 获取当前网络状况和视频信息
+CLiteAV.prototype.getNetStatus = function(success, error) {
+  cordova.exec(success, error, 'CLiteAV', 'getNetStatus', []);
+}
 
-// 事件监听
-// channel.onCordovaReady.subscribe(function() {
-//   newCLiteAV.getNetStatus(function(netStatus) {
-//     if (netStatus) {
-//       cordova.fireDocumentEvent('CLiteAV.onNetStatus', netStatus);
-//     }
-//   }, function(e) {
-//     console.log('[CLiteAV WEB] Get network status failed, ' + e);
-//   });
-// });
+// 监听网络状况变化
+CLiteAV.prototype.onNetStatusChange = function(data) {
+  cordova.fireDocumentEvent('CLiteAV.onNetStatusChange', data);
+}
+
+var newCLiteAV = new CLiteAV();
 
 module.exports = newCLiteAV;
 

@@ -286,13 +286,36 @@
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:self.netStatus];
     }
+    [pluginResult setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void) onNetStatus:(NSDictionary*) param {
     if (param && param != nil) {
         self.netStatus = param;
+        NSString *paramStr = [self convertToJSONData:param];
+        NSString *jsStr = [NSString stringWithFormat:@"window.CLiteAV.onNetStatusChange('%@')", paramStr];
+        [self.commandDelegate evalJs:jsStr];
     }
+}
+
+- (NSString*) convertToJSONData:(NSDictionary *)infoDict {
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:infoDict options:NSJSONWritingPrettyPrinted error:&error];
+    
+    NSString *jsonString = @"";
+    
+    if (!jsonData){
+        NSLog(@"Got an error: %@", error);
+    } else {
+        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+    
+    jsonString = [jsonString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];  //去除掉首尾的空白字符和换行字符
+    
+    [jsonString stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+    
+    return jsonString;
 }
 
 @end
