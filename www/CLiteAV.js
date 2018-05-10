@@ -61,16 +61,6 @@ CLiteAV.prototype.stopLinkMic = function(success, error) {
   cordova.exec(success, error, 'CLiteAV', 'stopLinkMic', []);
 }
 
-// 开启录屏推流
-CLiteAV.prototype.startScreenPush = function(options, success, error) {
-  cordova.exec(success, error, 'CLiteAV', 'startScreenPush', [options]);
-}
-
-// 结束录屏推流
-CLiteAV.prototype.stopScreenPush = function(success, error) {
-  cordova.exec(success, error, 'CLiteAV', 'stopScreenPush', []);
-}
-
 // 获取当前网络状况和视频信息
 CLiteAV.prototype.getNetStatus = function(success, error) {
   cordova.exec(success, error, 'CLiteAV', 'getNetStatus', []);

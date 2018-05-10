@@ -106,24 +106,11 @@ body.video-play {
 * `successCallback` 成功回调 
 * `errorCallback` 失败回调
 
-### 开启录屏推流 CLiteAV.startScreenPush()
-`CLiteAV.startScreenPush(options, successCallback, errorCallback)`
-
-* `options` options中必须包含推流的地址url参数，暂无其他参数
-* `successCallback` 成功回调 
-* `errorCallback` 失败回调
-
-### 关闭连麦 CLiteAV.stopScreenPush()
-`CLiteAV.stopScreenPush(successCallback, errorCallback)`
-
-* `successCallback` 成功回调
-* `errorCallback` 失败回调
-
 ## Demo
 基于Ionic 3的Demo：[https://github.com/Cheney925/ionic-for-cordova-plugin-tencent-LiteAV](https://github.com/Cheney925/ionic-for-cordova-plugin-tencent-LiteAV)
 
 ## TODO
-* 各方法回调实现
+* ~~各方法回调实现~~
 
 ## 相关文档 Documents
 腾讯云小直播官方文档：[https://cloud.tencent.com/document/product/454](https://cloud.tencent.com/document/product/454)
