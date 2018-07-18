@@ -14,9 +14,12 @@
     "url": "git+https://github.com/Cheney925/cordova-plugin-tencent-liteav.git"
   },
   "keywords": [
-    "ecosystem:cordova",
-    "cordova-ios",
-    "cordova-android"
+    "cordova",
+    "livestream",
+    "flv",
+    "hls",
+    "rtmp",
+    "liteav"
   ],
   "author": "Cheney Hu",
   "license": "ISC",
