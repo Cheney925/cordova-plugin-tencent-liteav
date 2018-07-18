@@ -1,5 +1,5 @@
 package com.hoperun.cordova.tencent;
-
+import com.hoperun.cordova.tencent.SuperPlayerGlobalConfig;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -7,6 +7,7 @@ import android.content.Intent;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.*;
 import android.util.Log;
 import android.view.Gravity;
@@ -29,6 +30,7 @@ import com.google.gson.Gson;
 
 import com.tencent.rtmp.*;
 import com.tencent.rtmp.ui.*;
+
 /**
  * Created by ztl on 2018/1/17.
  */
@@ -50,6 +52,9 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
     private TXCloudVideoView videoView = null;
     private TXLivePusher mLivePusher = null;
     private TXLivePlayer mLivePlayer = null;
+
+    private TXVodPlayer mTxplayer = null;
+
 
     private TXLivePlayConfig mPlayConfig;
     private TXLivePushConfig mLivePushConfig;
@@ -76,10 +81,17 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
     private int              mWhiteningLevel = 3;
     private int              mRuddyLevel = 2;
     private int              mBeautyStyle = TXLiveConstants.BEAUTY_STYLE_SMOOTH;
+    private TXVodPlayConfig mTPlayConfig;
 
     private boolean          mMainPublish = true;
 
     private String           netStatus;
+    // 播放器
+    private TXVodPlayer mVodPlayer;
+    private TXVodPlayConfig mVodPlayConfig;
+
+    private TXCloudVideoView mTXCloudVideoView;
+
 
     private String[] permissions = {
             Manifest.permission.INTERNET,
@@ -110,16 +122,41 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
         mCurrentRenderMode     = TXLiveConstants.RENDER_MODE_ADJUST_RESOLUTION;
         mCurrentRenderRotation = TXLiveConstants.RENDER_ROTATION_PORTRAIT;
         mPlayConfig = new TXLivePlayConfig();
+        mTPlayConfig = new TXVodPlayConfig();
+        mTPlayConfig.setCacheFolderPath(getInnerSDCardPath() + "/txcache");
+        mTPlayConfig.setMaxCacheItems(5);
         WindowManager wm = (WindowManager) cordova.getActivity()
                 .getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics dm = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(dm);
         driveWidth =  dm.widthPixels;
         driveHeight = dm.heightPixels;
-        screenHeigh = (9*driveWidth/16);
+        screenHeigh = (9*driveHeight/16);
         screenWidth = (16*driveHeight/9);
+        initVodPlayer();
     }
 
+    /**
+     * 初始化点播播放器
+     *
+     *
+     */
+    private void initVodPlayer() {
+        mVodPlayer = new TXVodPlayer(activity);
+
+        SuperPlayerGlobalConfig config = SuperPlayerGlobalConfig.getInstance();
+
+        mVodPlayConfig = new TXVodPlayConfig();
+        mVodPlayConfig.setCacheFolderPath(Environment.getExternalStorageDirectory().getPath() + "/txcache");
+        mVodPlayConfig.setMaxCacheItems(config.maxCacheItem);
+
+        mVodPlayer.setConfig(mVodPlayConfig);
+        mVodPlayer.setRenderMode(config.renderMode);
+        mVodPlayer.enableHardwareDecode(config.enableHWAcceleration);
+    }
+    public String getInnerSDCardPath() {
+        return Environment.getExternalStorageDirectory().getPath();
+    }
     /**
      * Executes the request and returns PluginResult.
      *
@@ -144,9 +181,8 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
             JSONObject jsonRsp = new JSONObject(option);
             final String url = jsonRsp.optString("url");
             final int playType = jsonRsp.optInt("playType");
-            final int width = jsonRsp.optInt("width");
-            final int height = jsonRsp.optInt("height");
-            return startPlay(url, playType, width, height,callbackContext);
+            final int playMode = jsonRsp.optInt("playMode");
+            return startPlay(url, playType, playMode,callbackContext);
         } else if (action.equals("stopPlay")) {
             return stopPlay(callbackContext);
         }else if(action.equals("setPlayMode")){
@@ -190,21 +226,14 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
         }
     }
 
-    private void prepareVideoView(final int width,final int heigh) {
+    private void prepareVideoView() {
 
         if (videoView != null) return;
         // 通过 layout 文件插入 videoView
         LayoutInflater layoutInflater = LayoutInflater.from(activity);
         videoView = (TXCloudVideoView) layoutInflater.inflate(_R("layout", "layout_video"), null);
         // 设置 webView 透明
-        System.out.println(screenHeigh);
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                screenWidth,
-                driveHeight,
-                Gravity.TOP
-        );
-        lp.setMargins(driveWidth-screenWidth, 0, driveWidth-screenWidth, 0);
-        videoView.setLayoutParams(lp);
+
         // 插入视图
         rootView.addView(videoView);
         videoView.setVisibility(View.VISIBLE);
@@ -249,40 +278,76 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
      * @param callbackContext
      * @return
      */
-    private boolean startPlay(final String url, final int playType,final int width,final int heigh, final CallbackContext callbackContext) {
+    private boolean startPlay(final String url, final int playType,final int playMode,final CallbackContext callbackContext) {
         if (mLivePlayer != null) {
             callbackContext.error("10004");
             return false;
         }
-        // 开始推流
-        mLivePlayer = new TXLivePlayer(activity);
-        // 设置自动配置
-        setCacheStrategy(CACHE_STRATEGY_AUTO);
-        mLivePlayer.setConfig(mPlayConfig);
-
-        // 设置图像渲染角度
-        mLivePlayer.setRenderRotation(mCurrentRenderRotation);
-        // 设置横屏、竖屏
-        mLivePlayer.setRenderMode(mCurrentRenderMode);
-        mLivePlayer.setPlayListener(this);
-        // 准备 videoView，没有的话生成
+        mVodPlayer.stopPlay(true);
+        mVodPlayer.setAutoPlay(true);
         activity.runOnUiThread(new Runnable() {
             public void run() {
-                prepareVideoView(width,heigh);
-
-
+                prepareVideoView();
+//                setPlayMode(playMode,callbackContext);
                 // 将视频绑定到 videoView
-                mLivePlayer.setPlayerView(videoView);
-                mLivePlayer.startPlay(url, playType);
+                mVodPlayer.setPlayerView(videoView);
+                mVodPlayer.startPlay("http://47.98.35.236/test.flv");
                 callbackContext.success("播放成功");
                 callbackContext.error("播放失败");
             }
         });
+//        if(playType==2){
+//
+//            mTxplayer = new TXVodPlayer(activity);
+//            mTxplayer.setConfig(mTPlayConfig);
+//            mTxplayer.setRenderMode(TXLiveConstants.RENDER_MODE_ADJUST_RESOLUTION);
+////            mTxplayer.setPlayerView(mCloudVideoView);
+////            mTxplayer.setVodListener(mPlayVodListener);
+//            mTxplayer.enableHardwareDecode(true);
+//            // 准备 videoView，没有的话生成
+//            activity.runOnUiThread(new Runnable() {
+//                public void run() {
+//                    prepareVideoView();
+//                    setPlayMode(playMode,callbackContext);
+//                    // 将视频绑定到 videoView
+//                    mTxplayer.setPlayerView(videoView);
+//                    mTxplayer.startPlay(url);
+//                    callbackContext.success("播放成功");
+//                    callbackContext.error("播放失败");
+//                }
+//            });
+//        }else{
+//            // 开始推流
+//            mLivePlayer = new TXLivePlayer(activity);
+//            // 设置自动配置
+//            setCacheStrategy(CACHE_STRATEGY_AUTO);
+//            mPlayConfig.setConnectRetryCount(50);
+//            mPlayConfig.setConnectRetryInterval(3);
+//            mLivePlayer.setConfig(mPlayConfig);
+//
+//            // 设置图像渲染角度
+//            mLivePlayer.setRenderRotation(mCurrentRenderRotation);
+//            // 设置横屏、竖屏
+//            mLivePlayer.setRenderMode(mCurrentRenderMode);
+//            mLivePlayer.setPlayListener(this);
+//            // 准备 videoView，没有的话生成
+//            activity.runOnUiThread(new Runnable() {
+//                public void run() {
+//                    prepareVideoView();
+//                    setPlayMode(playMode,callbackContext);
+//                    // 将视频绑定到 videoView
+//                    mLivePlayer.setPlayerView(videoView);
+//                    mLivePlayer.startPlay(url, playType);
+//                    callbackContext.success("播放成功");
+//                    callbackContext.error("播放失败");
+//                }
+//            });
+//        }
         return true;
     }
     private boolean setPlayMode(final int playMode, final CallbackContext callbackContext){
         if (mLivePlayer == null) {
-            callbackContext.error("切换失败");
+            callbackContext.error("切换失败,当前未在播放");
             return false;
         }
         activity.runOnUiThread(new Runnable() {
@@ -305,7 +370,7 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
                     activity.runOnUiThread(new Runnable() {
                         public void run() {
                             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                                    driveWidth,
+                                    driveHeight,
                                     screenHeigh,
                                     Gravity.TOP
                             );
@@ -560,12 +625,12 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
                 "\",\"GOP\":\""+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_GOP)+"s"+
                 "\",\"ARA\":\""+status.getInt(TXLiveConstants.NET_STATUS_AUDIO_BITRATE)+"Kbps"+
                 "\",\"QUE\":\""+status.getInt(TXLiveConstants.NET_STATUS_CODEC_CACHE)
-                        +"|"+status.getInt(TXLiveConstants.NET_STATUS_CACHE_SIZE)
-                        +","+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_CACHE_SIZE)
-                        +","+status.getInt(TXLiveConstants.NET_STATUS_V_DEC_CACHE_SIZE)
-                        +"|"+status.getInt(TXLiveConstants.NET_STATUS_AV_RECV_INTERVAL)
-                        +","+status.getInt(TXLiveConstants.NET_STATUS_AV_PLAY_INTERVAL)
-                        +","+status.getFloat(TXLiveConstants.NET_STATUS_AUDIO_PLAY_SPEED)+
+                +"|"+status.getInt(TXLiveConstants.NET_STATUS_CACHE_SIZE)
+                +","+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_CACHE_SIZE)
+                +","+status.getInt(TXLiveConstants.NET_STATUS_V_DEC_CACHE_SIZE)
+                +"|"+status.getInt(TXLiveConstants.NET_STATUS_AV_RECV_INTERVAL)
+                +","+status.getInt(TXLiveConstants.NET_STATUS_AV_PLAY_INTERVAL)
+                +","+status.getFloat(TXLiveConstants.NET_STATUS_AUDIO_PLAY_SPEED)+
                 "\",\"VRA\":\""+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_BITRATE)+"Kbps"+
                 "\",\"SVR\":\""+status.getString(TXLiveConstants.NET_STATUS_SERVER_IP)+
                 "\",\"AUDIO\":\""+status.getString(TXLiveConstants.NET_STATUS_AUDIO_INFO)+"\"}";
