@@ -1,19 +1,8 @@
-# cordova-plugin-tencent-LiteAV
+# cordova-plugin-tencent-liteav
 腾讯小直播LiteAV SDK Cordova插件
 
 ## 安装 Installation
-### 方法一
-`cordova plugin add https://github.com/Cheney925/cordova-plugin-tencent-LiteAV.git`
-### 方法二
-下载git源码包，手动放入plugins目录
-### 方法三
-在config.xml中添加
-
-`<plugin name="cordova-plugin-tencent-LiteAV" spec="https://github.com/Cheney925/cordova-plugin-tencent-LiteAV.git" />`
-
-然后运行
-
-`cordova prepare`
+`cordova plugin add cordova-plugin-tencent-liteav`
 
 ## 使用 Usage
 ### 直播/播放视频 CLiteAV.startPlay()
@@ -114,5 +103,3 @@ body.video-play {
 
 ## 相关文档 Documents
 腾讯云小直播官方文档：[https://cloud.tencent.com/document/product/454](https://cloud.tencent.com/document/product/454)
-
-开源项目参考：[https://github.com/EaseCloud/cordova-plugin-tencent-mlvb](https://github.com/EaseCloud/cordova-plugin-tencent-mlvb)

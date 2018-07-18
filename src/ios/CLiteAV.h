@@ -1,12 +1,14 @@
 #import <Cordova/CDV.h>
 #import <TXLiteAVSDK_Smart/TXLivePush.h>
 #import <TXLiteAVSDK_Smart/TXLivePlayer.h>
+#import <TXLiteAVSDK_Smart/TXVodPlayer.h>
 #import <TXLiteAVSDK_Smart/TXLivePlayListener.h>
 
 @interface CLiteAV : CDVPlugin <TXLivePlayListener>
 
 @property UIView *videoView;
 @property TXLivePlayer *livePlayer;
+@property TXVodPlayer *vodPlayer;
 @property TXLivePush *livePusher;
 @property int playerWidth;
 @property int playerHeight;

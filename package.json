@@ -1,9 +1,9 @@
 {
-  "name": "cordova-plugin-tencent-LiteAV",
-  "version": "0.0.1",
+  "name": "cordova-plugin-tencent-liteav",
+  "version": "0.1.0",
   "description": "A cordova plugin for Tencent's LiteAV SDK",
   "cordova": {
-    "id": "cordova-plugin-tencent-LiteAV",
+    "id": "cordova-plugin-tencent-liteav",
     "platforms": [
       "ios",
       "android"
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Cheney925/cordova-plugin-tencent-LiteAV.git"
+    "url": "git+https://github.com/Cheney925/cordova-plugin-tencent-liteav.git"
   },
   "keywords": [
     "ecosystem:cordova",
@@ -21,7 +21,8 @@
   "author": "Cheney Hu",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Cheney925/cordova-plugin-tencent-LiteAV/issues"
+    "url": "https://github.com/Cheney925/cordova-plugin-tencent-liteav/issues"
   },
-  "homepage": "https://github.com/Cheney925/cordova-plugin-tencent-LiteAV#readme"
+  "homepage": "https://github.com/Cheney925/cordova-plugin-tencent-liteav#readme",
+  "private": false
 }

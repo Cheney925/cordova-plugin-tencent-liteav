@@ -21,6 +21,7 @@
 
 @synthesize videoView;
 @synthesize livePlayer;
+@synthesize vodPlayer;
 @synthesize livePusher;
 @synthesize playerWidth;
 @synthesize playerHeight;
@@ -54,6 +55,29 @@
     NSDictionary* optionsDict = [command.arguments objectAtIndex:0];
     NSString* url = [optionsDict objectForKey:@"url"]; // 播放地址
     int type = [[optionsDict valueForKey:@"playType"] intValue]; // 播放类型
+    
+    
+    // 设置播放器大小
+    int mode = [[optionsDict valueForKey:@"playMode"] intValue]; // 播放模式
+    [self updatePlayerMode:mode];
+
+    // 播放视图准备
+    [self prepareVideoView];
+
+    CDVPluginResult *pluginResult;
+    @try {
+        [self play:url withType:type];
+        
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[CLiteAV] Played successful!"];
+    } @catch (NSException *ex) {
+        // 设置播放成功回调
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"[CLiteAV] Played Fail!"];
+    }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void) play:(NSString*)url withType:(int)type {
     TX_Enum_PlayType playType;
     switch (type) {
         case 0:
@@ -82,43 +106,44 @@
             break;
     }
     
-    
-    // 设置播放器大小
-    int mode = [[optionsDict valueForKey:@"playMode"] intValue]; // 播放模式
-    [self updatePlayerMode:mode];
-
-    // 播放视图准备
-    [self prepareVideoView];
-
-    // 播放器准备
-    self.livePlayer = [[TXLivePlayer alloc] init];
-    [self.livePlayer setupVideoWidget:CGRectMake(0, 0, 0, 0) containView:videoView insertIndex:0];
-
-    [self.livePlayer setRenderRotation:HOME_ORIENTATION_DOWN];
-    [self.livePlayer setRenderMode:RENDER_MODE_FILL_EDGE];
-
-    CDVPluginResult *pluginResult;
-    @try {
+    // 区分直播和点播，使用不同的player
+    if (type == 0 || type == 1 || type == 5) {
+        self.livePlayer = [[TXLivePlayer alloc] init];
+        [self.livePlayer setupVideoWidget:CGRectMake(0, 0, 0, 0) containView:videoView insertIndex:0];
+        
+        [self.livePlayer setRenderRotation:HOME_ORIENTATION_DOWN];
+        [self.livePlayer setRenderMode:RENDER_MODE_FILL_EDGE];
+        
         [self.livePlayer startPlay:url type:playType];
-        // 设置播放成功回调
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[CLiteAV] Played successful!"];
-    } @catch (NSException *ex) {
-        // 设置播放成功回调
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"[CLiteAV] Played Fail!"];
+        
+        [self.livePlayer setDelegate:self];
+        
+        self.vodPlayer = nil;
+    } else {
+        self.vodPlayer = [[TXVodPlayer alloc] init];
+        [self.vodPlayer setupVideoWidget:videoView insertIndex:0];
+        
+        [self.vodPlayer setRenderRotation:HOME_ORIENTATION_DOWN];
+        [self.vodPlayer setRenderMode:RENDER_MODE_FILL_EDGE];
+        
+        [self.vodPlayer startPlay:url];
+        
+        self.livePlayer = nil;
     }
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    
-    // 绑定事件
-    [self.livePlayer setDelegate:self];
 }
 
 // 暂停播放
 - (void) pause:(CDVInvokedUrlCommand*)command {
-    if (!self.livePlayer) return;
-    
+    if (!self.livePlayer && !self.vodPlayer) return;
+
     CDVPluginResult *pluginResult;
     @try {
-        [self.livePlayer pause];
+        if (self.livePlayer) {
+            [self.livePlayer pause];
+        }
+        if (self.vodPlayer) {
+            [self.vodPlayer pause];
+        }
         // 设置播放成功回调
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[CLiteAV] Player paused successful!"];
     } @catch (NSException *ex) {
@@ -130,11 +155,16 @@
 
 // 恢复播放
 - (void) resume:(CDVInvokedUrlCommand*)command {
-    if (!self.livePlayer) return;
+    if (!self.livePlayer && !self.vodPlayer) return;
     
     CDVPluginResult *pluginResult;
     @try {
-        [self.livePlayer resume];
+        if (self.livePlayer) {
+            [self.livePlayer resume];
+        }
+        if (self.vodPlayer) {
+            [self.vodPlayer resume];
+        }
         // 设置播放成功回调
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"[CLiteAV] Player resumed successful!"];
     } @catch (NSException *ex) {
@@ -203,12 +233,18 @@
 
 // 退出播放
 - (void) stopPlay:(CDVInvokedUrlCommand*)command {
-    if (!self.livePlayer) return;
+    if (!self.livePlayer && !self.vodPlayer) return;
     
     CDVPluginResult *pluginResult;
     @try {
-        [self.livePlayer stopPlay];
-        [self.livePlayer removeVideoWidget];
+        if (self.livePlayer) {
+            [self.livePlayer stopPlay];
+            [self.livePlayer removeVideoWidget];
+        }
+        if (self.vodPlayer) {
+            [self.vodPlayer stopPlay];
+            [self.vodPlayer removeVideoWidget];
+        }
         
         if (livePusher) {
             [livePusher stopPush];

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-tencent-LiteAV" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
-    <name>cordova-plugin-tencent-LiteAV</name>
+<plugin id="cordova-plugin-tencent-liteav" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>cordova-plugin-tencent-liteav</name>
     <description>Tencent LiteAV Plugin</description>
     <license>Apache 2.0</license>
     <keywords>cordova,live,video,tencent,qq,liteav</keywords>
