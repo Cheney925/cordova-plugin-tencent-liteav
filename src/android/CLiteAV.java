@@ -283,66 +283,47 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
             callbackContext.error("10004");
             return false;
         }
-        mVodPlayer.stopPlay(true);
-        mVodPlayer.setAutoPlay(true);
-        activity.runOnUiThread(new Runnable() {
-            public void run() {
-                prepareVideoView();
-//                setPlayMode(playMode,callbackContext);
-                // 将视频绑定到 videoView
-                mVodPlayer.setPlayerView(videoView);
-                mVodPlayer.startPlay("http://47.98.35.236/test.flv");
-                callbackContext.success("播放成功");
-                callbackContext.error("播放失败");
-            }
-        });
-//        if(playType==2){
-//
-//            mTxplayer = new TXVodPlayer(activity);
-//            mTxplayer.setConfig(mTPlayConfig);
-//            mTxplayer.setRenderMode(TXLiveConstants.RENDER_MODE_ADJUST_RESOLUTION);
-////            mTxplayer.setPlayerView(mCloudVideoView);
-////            mTxplayer.setVodListener(mPlayVodListener);
-//            mTxplayer.enableHardwareDecode(true);
-//            // 准备 videoView，没有的话生成
-//            activity.runOnUiThread(new Runnable() {
-//                public void run() {
-//                    prepareVideoView();
-//                    setPlayMode(playMode,callbackContext);
-//                    // 将视频绑定到 videoView
-//                    mTxplayer.setPlayerView(videoView);
-//                    mTxplayer.startPlay(url);
-//                    callbackContext.success("播放成功");
-//                    callbackContext.error("播放失败");
-//                }
-//            });
-//        }else{
-//            // 开始推流
-//            mLivePlayer = new TXLivePlayer(activity);
-//            // 设置自动配置
-//            setCacheStrategy(CACHE_STRATEGY_AUTO);
-//            mPlayConfig.setConnectRetryCount(50);
-//            mPlayConfig.setConnectRetryInterval(3);
-//            mLivePlayer.setConfig(mPlayConfig);
-//
-//            // 设置图像渲染角度
-//            mLivePlayer.setRenderRotation(mCurrentRenderRotation);
-//            // 设置横屏、竖屏
-//            mLivePlayer.setRenderMode(mCurrentRenderMode);
-//            mLivePlayer.setPlayListener(this);
-//            // 准备 videoView，没有的话生成
-//            activity.runOnUiThread(new Runnable() {
-//                public void run() {
-//                    prepareVideoView();
-//                    setPlayMode(playMode,callbackContext);
-//                    // 将视频绑定到 videoView
-//                    mLivePlayer.setPlayerView(videoView);
-//                    mLivePlayer.startPlay(url, playType);
-//                    callbackContext.success("播放成功");
-//                    callbackContext.error("播放失败");
-//                }
-//            });
-//        }
+        if(playType==2){
+            mVodPlayer.stopPlay(true);
+            mVodPlayer.setAutoPlay(true);
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    prepareVideoView();
+                    setPlayMode(playMode,callbackContext);
+                    // 将视频绑定到 videoView
+                    mVodPlayer.setPlayerView(videoView);
+                    mVodPlayer.startPlay(url);
+                    callbackContext.success("播放成功");
+                    callbackContext.error("播放失败");
+                }
+            });
+        }else{
+           // 开始推流
+           mLivePlayer = new TXLivePlayer(activity);
+           // 设置自动配置
+           setCacheStrategy(CACHE_STRATEGY_AUTO);
+           mPlayConfig.setConnectRetryCount(50);
+           mPlayConfig.setConnectRetryInterval(3);
+           mLivePlayer.setConfig(mPlayConfig);
+
+           // 设置图像渲染角度
+           mLivePlayer.setRenderRotation(mCurrentRenderRotation);
+           // 设置横屏、竖屏
+           mLivePlayer.setRenderMode(mCurrentRenderMode);
+           mLivePlayer.setPlayListener(this);
+           // 准备 videoView，没有的话生成
+           activity.runOnUiThread(new Runnable() {
+               public void run() {
+                   prepareVideoView();
+                   setPlayMode(playMode,callbackContext);
+                   // 将视频绑定到 videoView
+                   mLivePlayer.setPlayerView(videoView);
+                   mLivePlayer.startPlay(url, playType);
+                   callbackContext.success("播放成功");
+                   callbackContext.error("播放失败");
+               }
+           });
+       }
         return true;
     }
     private boolean setPlayMode(final int playMode, final CallbackContext callbackContext){
