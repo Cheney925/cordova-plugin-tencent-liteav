@@ -47,6 +47,8 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
     private WebSettings settings;
     private CallbackContext callbackContext;
 
+    private static CLiteAV instance;
+
 
 
     private TXCloudVideoView videoView = null;
@@ -112,6 +114,8 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
      */
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+        instance = this;
+
         super.initialize(cordova, webView);
         this.cordovaWebView = webView;
         this.cordova = cordova;
@@ -530,7 +534,8 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
         } else if (event == TXLiveConstants.PLAY_EVT_CHANGE_RESOLUTION) {
         }
 
-        String jsStr = String.format("window.CLiteAV.onPlayEvent(%d, %s)", event, param.toString());
+        final String jsStr = String.format("window.CLiteAV.onPlayEvent(%d, %s)", event, param.toString());
+
         this.cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -583,7 +588,7 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
                 ", ARA:"+status.getInt(TXLiveConstants.NET_STATUS_AUDIO_BITRATE)+"Kbps"+
                 ", VRA:"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_BITRATE)+"Kbps");
 
-        String jsStr = String.format("window.CLiteAV.onNetStatusChange(%s)", status.toString());
+        final String jsStr = String.format("window.CLiteAV.onNetStatusChange(%s)", status.toString());
         this.cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
