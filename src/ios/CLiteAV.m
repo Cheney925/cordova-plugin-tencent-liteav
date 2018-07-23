@@ -303,15 +303,19 @@
 
 // 监听播放事件
 - (void) onPlayEvent:(int)EvtID withParam:(NSDictionary*)param {
-    if (EvtID == PLAY_EVT_PLAY_LOADING) {
-        NSLog(@"[CLiteAV] 加载中...");
-    }
-    if (EvtID == PLAY_EVT_RTMP_STREAM_BEGIN) {
-        NSLog(@"[CLiteAV] 已经连接服务器，开始拉流");
-    }
-    if (EvtID == PLAY_EVT_PLAY_BEGIN) {
-        NSLog(@"[CLiteAV] 开始播放");
-    }
+//    if (EvtID == PLAY_EVT_PLAY_LOADING) {
+//        NSLog(@"[CLiteAV] 加载中...");
+//    }
+//    if (EvtID == PLAY_EVT_RTMP_STREAM_BEGIN) {
+//        NSLog(@"[CLiteAV] 已经连接服务器，开始拉流");
+//    }
+//    if (EvtID == PLAY_EVT_PLAY_BEGIN) {
+//        NSLog(@"[CLiteAV] 开始播放");
+//    }
+    
+    NSString *paramStr = [self convertToJSONData:param];
+    NSString *jsStr = [NSString stringWithFormat:@"window.CLiteAV.onPlayEvent(%d, %@)", EvtID, paramStr];
+    [self.commandDelegate evalJs:jsStr];
 }
 
 // 获取当前网络状况和视频信息
@@ -326,11 +330,12 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+// 监听当前网络状况和视频信息，回传执行JavaScript
 - (void) onNetStatus:(NSDictionary*) param {
     if (param && param != nil) {
         self.netStatus = param;
         NSString *paramStr = [self convertToJSONData:param];
-        NSString *jsStr = [NSString stringWithFormat:@"window.CLiteAV.onNetStatusChange('%@')", paramStr];
+        NSString *jsStr = [NSString stringWithFormat:@"window.CLiteAV.onNetStatusChange(%@)", paramStr];
         [self.commandDelegate evalJs:jsStr];
     }
 }

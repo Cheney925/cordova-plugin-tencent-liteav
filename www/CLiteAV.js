@@ -54,25 +54,33 @@ CLiteAV.prototype.setPlayMode = function(mode, success, error) {
 // 开启连麦
 CLiteAV.prototype.startLinkMic = function(options, success, error) {
   cordova.exec(success, error, 'CLiteAV', 'startLinkMic', [options]);
-}
+};
 
 // 关闭连麦
 CLiteAV.prototype.stopLinkMic = function(success, error) {
   cordova.exec(success, error, 'CLiteAV', 'stopLinkMic', []);
-}
+};
 
 // 获取当前网络状况和视频信息
 CLiteAV.prototype.getNetStatus = function(success, error) {
   cordova.exec(success, error, 'CLiteAV', 'getNetStatus', []);
-}
+};
 
 // 监听网络状况变化
 CLiteAV.prototype.onNetStatusChange = function(data) {
   cordova.fireDocumentEvent('CLiteAV.onNetStatusChange', data);
+};
+
+// 监听播放事件变化
+CLiteAV.prototype.onPlayEvent = function(eventID, params) {
+  cordova.fireDocumentEvent('CLiteAV.onPlayEvent', {
+    eventID: eventID,
+    params: params
+  });
+};
+
+if (!window.CLiteAV) {
+  window.CLiteAV = new CLiteAV();
 }
 
-var newCLiteAV = new CLiteAV();
-
-module.exports = newCLiteAV;
-
-
+module.exports = new CLiteAV();

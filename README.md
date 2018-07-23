@@ -95,11 +95,71 @@ body.video-play {
 * `successCallback` 成功回调 
 * `errorCallback` 失败回调
 
+### 获取视频信息 CLiteAV.getNetStatus()
+`CLiteAV.getNetStatus(successCallback, errorCallback)`
+
+* `successCallback` 成功回调 
+* `errorCallback` 失败回调
+
+`successCallback`有回调参数`netStatus`，包含了播放的视频状态信息
+
+**示例如下：**
+
+```
+{
+	"isTrusted": false,
+	"AV_PLAY_INTERVAL": -22,
+	"CPU_USAGE_DEVICE": 0.026000000536441803,
+	"SERVER_IP": "112.65.220.64:1935", // 连接的服务器IP
+	"NET_JITTER": 0,
+	"CODEC_CACHE": 1621,
+	"AUDIO_INFO": "1|48000,2|48000,1",
+	"AUDIO_BITRATE": 32, // 当前流媒体的音频码率，单位 kbps
+	"NET_SPEED": 318, // 当前网络数据接收速度
+	"VIDEO_HEIGHT": 288, // 视频分辨率 - 高
+	"VIDEO_BITRATE": 286, // 当前流媒体的视频码率，单位 kbps
+	"V_DEC_CACHE_SIZE": 4,
+	"CPU_USAGE": 0.10025062412023544, // 当前瞬时CPU使用率
+	"CACHE_SIZE": 1680, // 缓冲区（jitterbuffer）大小，缓冲区当前长度为 0，说明离卡顿就不远了
+	"VIDEO_WIDTH": 480, // 视频分辨率 - 宽
+	"VIDEO_GOP": 1,
+	"AV_RECV_INTERVAL": -41,
+	"VIDEO_CACHE_SIZE": 42,
+	"VIDEO_FPS": 25, 、// 当前流媒体的视频帧率
+	"AUDIO_PLAY_SPEED": 5
+}
+```
+
+### 监听视频信息变化 CLiteAV.onNetStatusChange
+`document.addEventListener('CLiteAV.onNetStatusChange', function(netStatus) {})`
+
+* `netStatus`与`CLiteAV.getNetStatus`获取的一致，不同的是通过事件监听可以自动拿到最新的状态信息
+
+### 播放事件 CLiteAV.onPlayEvent
+`document.addEventListener('CLiteAV.onNetStatusChange', function(data) {})`
+
+* `data.eventID` 播放事件ID，参考 [文档](https://cloud.tencent.com/document/product/454/7880)
+* `data.params` 附加数据
+
+**常用播放事件**
+
+事件ID|数值|含义说明
+---|---|---
+`PLAY_EVT_CONNECT_SUCC` |2001 |已经连接服务器
+`PLAY_EVT_RTMP_STREAM_BEGIN` |2002 |已经连接服务器，开始拉流（仅播放RTMP地址时会抛送）
+`PLAY_EVT_RCV_FIRST_I_FRAME` |2003 |已经网络接收到首个可渲染的视频数据包(IDR)服务器
+`PLAY_EVT_PLAY_BEGIN` |2004 |视频播放开始，如果有转菊花什么的这个时候该停了
+`PLAY_EVT_PLAY_PROGRESS` |2005 |视频播放进度，会通知当前播放进度、加载进度 和总体时长
+`PLAY_EVT_PLAY_END ` |2006 |视频播放结束
+`PLAY_EVT_PLAY_LOADING` |2007 |视频播放loading，如果能够恢复，之后会有BEGIN事件
+`PLAY_EVT_GET_MESSAGE` |2012 |用于接收夹在音视频流中的消息
+`PLAY_ERR_NET_DISCONNECT` |-2301 |网络断连,且经多次重连亦不能恢复,更多重试请自行重启播放
+
+## Change Log
+* **v0.2.0** 添加视频信息监听`CLiteAV.onNetStatusChange`和播放事件`CLiteAV.onPlayEvent`
+
 ## Demo
 基于Ionic 3的Demo：[https://github.com/Cheney925/ionic-for-cordova-plugin-tencent-liteav](https://github.com/Cheney925/ionic-for-cordova-plugin-tencent-liteav)
-
-## TODO
-* ~~各方法回调实现~~
 
 ## 相关文档 Documents
 腾讯云小直播官方文档：[https://cloud.tencent.com/document/product/454](https://cloud.tencent.com/document/product/454)

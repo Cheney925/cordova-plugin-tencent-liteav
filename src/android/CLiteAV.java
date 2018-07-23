@@ -514,6 +514,7 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
         callbackContext.success("停止连麦");
         return true;
     }
+
     // 播放状态监听
     @Override
     public void onPlayEvent(int event, Bundle param) {
@@ -528,10 +529,14 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
         } else if (event == TXLiveConstants.PLAY_EVT_RCV_FIRST_I_FRAME) {
         } else if (event == TXLiveConstants.PLAY_EVT_CHANGE_RESOLUTION) {
         }
-//
-//        if (event < 0) {
-//            Toast.makeText(this.context, param.getString(TXLiveConstants.EVT_DESCRIPTION), Toast.LENGTH_SHORT).show();
-//        }
+
+        String jsStr = String.format("window.CLiteAV.onPlayEvent(%d, %s)", event, param.toString());
+        this.cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                instance.webView.loadUrl("javascript:" + jsStr);
+            }
+        });
     }
 
     // 推流状态监听
@@ -577,8 +582,17 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
                 ", FPS:"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_FPS)+
                 ", ARA:"+status.getInt(TXLiveConstants.NET_STATUS_AUDIO_BITRATE)+"Kbps"+
                 ", VRA:"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_BITRATE)+"Kbps");
+
+        String jsStr = String.format("window.CLiteAV.onNetStatusChange(%s)", status.toString());
+        this.cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                instance.webView.loadUrl("javascript:" + jsStr);
+            }
+        });
     }
-    //公用打印辅助函数
+
+    // 公用打印辅助函数
     protected String getNetStatusString(Bundle status) {
         String str = String.format("%-14s %-14s %-12s\n%-8s %-8s %-8s %-8s\n%-14s %-14s\n%-14s %-14s",
                 "CPU:"+status.getString(TXLiveConstants.NET_STATUS_CPU_USAGE),
