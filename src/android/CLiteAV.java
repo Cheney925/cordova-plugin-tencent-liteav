@@ -31,6 +31,10 @@ import com.google.gson.Gson;
 import com.tencent.rtmp.*;
 import com.tencent.rtmp.ui.*;
 
+import java.util.Collection;
+import java.util.Map;
+import java.lang.reflect.Array;
+
 /**
  * Created by ztl on 2018/1/17.
  */
@@ -534,12 +538,21 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
         } else if (event == TXLiveConstants.PLAY_EVT_CHANGE_RESOLUTION) {
         }
 
-        final String jsStr = String.format("window.CLiteAV.onPlayEvent(%d, %s)", event, param.toString());
+        JSONObject json = new JSONObject();
+        for (String key : param.keySet()) {
+            try {
+                json.put(key, wrap(param.get(key)));
+            } catch(JSONException e) {
+                //Handle exception here
+            }
+        }
+
+        final String jsStr = String.format("window.CLiteAV.onPlayEvent(%d, %s)", event, json.toString());
 
         this.cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                instance.webView.loadUrl("javascript:" + jsStr);
+                cordovaWebView.loadUrl("javascript:" + jsStr);
             }
         });
     }
@@ -588,11 +601,20 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
                 ", ARA:"+status.getInt(TXLiveConstants.NET_STATUS_AUDIO_BITRATE)+"Kbps"+
                 ", VRA:"+status.getInt(TXLiveConstants.NET_STATUS_VIDEO_BITRATE)+"Kbps");
 
-        final String jsStr = String.format("window.CLiteAV.onNetStatusChange(%s)", status.toString());
+        JSONObject json = new JSONObject();
+        for (String key : status.keySet()) {
+            try {
+                json.put(key, wrap(status.get(key)));
+            } catch(JSONException e) {
+                //Handle exception here
+            }
+        }
+
+        final String jsStr = String.format("window.CLiteAV.onNetStatusChange(%s)", json.toString());
         this.cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                instance.webView.loadUrl("javascript:" + jsStr);
+                cordovaWebView.loadUrl("javascript:" + jsStr);
             }
         });
     }
@@ -635,5 +657,55 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
                 "\",\"SVR\":\""+status.getString(TXLiveConstants.NET_STATUS_SERVER_IP)+
                 "\",\"AUDIO\":\""+status.getString(TXLiveConstants.NET_STATUS_AUDIO_INFO)+"\"}";
         return str;
+    }
+
+    public static Object wrap(Object o) {
+        if (o == null) {
+            return JSONObject.NULL;
+        }
+        if (o instanceof JSONArray || o instanceof JSONObject) {
+            return o;
+        }
+        if (o.equals(JSONObject.NULL)) {
+            return o;
+        }
+        try {
+            if (o instanceof Collection) {
+                return new JSONArray((Collection) o);
+            } else if (o.getClass().isArray()) {
+                return toJSONArray(o);
+            }
+            if (o instanceof Map) {
+                return new JSONObject((Map) o);
+            }
+            if (o instanceof Boolean ||
+                    o instanceof Byte ||
+                    o instanceof Character ||
+                    o instanceof Double ||
+                    o instanceof Float ||
+                    o instanceof Integer ||
+                    o instanceof Long ||
+                    o instanceof Short ||
+                    o instanceof String) {
+                return o;
+            }
+            if (o.getClass().getPackage().getName().startsWith("java.")) {
+                return o.toString();
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    public static JSONArray toJSONArray(Object array) throws JSONException {
+        JSONArray result = new JSONArray();
+        if (!array.getClass().isArray()) {
+            throw new JSONException("Not a primitive array: " + array.getClass());
+        }
+        final int length = Array.getLength(array);
+        for (int i = 0; i < length; ++i) {
+            result.put(wrap(Array.get(array, i)));
+        }
+        return result;
     }
 }
