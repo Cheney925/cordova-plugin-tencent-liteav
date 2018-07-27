@@ -136,7 +136,7 @@ body.video-play {
 * `netStatus`与`CLiteAV.getNetStatus`获取的一致，不同的是通过事件监听可以自动拿到最新的状态信息
 
 ### 播放事件 CLiteAV.onPlayEvent
-`document.addEventListener('CLiteAV.onNetStatusChange', function(data) {})`
+`document.addEventListener('CLiteAV.onPlayEvent', function(data) {})`
 
 * `data.eventID` 播放事件ID，参考 [文档](https://cloud.tencent.com/document/product/454/7880)
 * `data.params` 附加数据
