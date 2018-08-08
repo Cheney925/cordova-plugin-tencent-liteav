@@ -156,6 +156,7 @@ body.video-play {
 `PLAY_ERR_NET_DISCONNECT` |-2301 |网络断连,且经多次重连亦不能恢复,更多重试请自行重启播放
 
 ## Change Log
+* **v0.2.2** 删除依赖插件cordova-plugin-compat
 * **v0.2.0** 添加视频信息监听`CLiteAV.onNetStatusChange`和播放事件`CLiteAV.onPlayEvent`
 
 ## Demo
