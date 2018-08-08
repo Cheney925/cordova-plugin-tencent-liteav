@@ -1,6 +1,9 @@
 # cordova-plugin-tencent-liteav
 腾讯小直播LiteAV SDK Cordova插件
 
+![npm](https://img.shields.io/npm/v/cordova-plugin-tencent-liteav.svg)
+![taobaonpm](https://npm.taobao.org/badge/v/cordova-plugin-tencent-liteav.svg)
+
 ## 安装 Installation
 `cordova plugin add cordova-plugin-tencent-liteav`
 
