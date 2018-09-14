@@ -35,6 +35,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.lang.reflect.Array;
 
+import org.apache.cordova.PermissionHelper;
+
 /**
  * Created by ztl on 2018/1/17.
  */
@@ -75,13 +77,13 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
     private int              mCurrentRenderRotation;
     private int              mCurrentRenderMode;
 
-    private int              driveHeight;
-    private int              driveWidth;
+    private int              deviceHeight;
+    private int              deviceWidth;
 
     private double           density;
 
-    private int              screenHeigh;
-    private int              screenWidth;
+    private int              playerHeight;
+    private int              playerWidth;
 
     private int              mBeautyLevel = 5;
     private int              mWhiteningLevel = 3;
@@ -133,14 +135,7 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
         mTPlayConfig = new TXVodPlayConfig();
         mTPlayConfig.setCacheFolderPath(getInnerSDCardPath() + "/txcache");
         mTPlayConfig.setMaxCacheItems(5);
-        WindowManager wm = (WindowManager) cordova.getActivity()
-                .getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics dm = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(dm);
-        driveWidth =  dm.widthPixels;
-        driveHeight = dm.heightPixels;
-        screenHeigh = (9*driveHeight/16);
-        screenWidth = (16*driveHeight/9);
+        
         initVodPlayer();
     }
 
@@ -291,6 +286,7 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
             callbackContext.error("10004");
             return false;
         }
+
         if(playType==2){
             mVodPlayer.stopPlay(true);
             mVodPlayer.setAutoPlay(true);
@@ -339,6 +335,14 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
             callbackContext.error("切换失败,当前未在播放");
             return false;
         }
+
+        WindowManager wm = (WindowManager) cordova.getActivity()
+                .getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics dm = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(dm);
+        deviceWidth =  dm.widthPixels;
+        deviceHeight = dm.heightPixels;
+
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -346,21 +350,20 @@ public class CLiteAV extends CordovaPlugin implements ITXLivePlayListener,ITXLiv
                     activity.runOnUiThread(new Runnable() {
                         public void run() {
                             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                                    screenWidth,
-                                    driveHeight,
+                                    deviceHeight*16/9,
+                                    deviceHeight,
                                     Gravity.TOP
                             );
-                            lp.setMargins(driveWidth-screenWidth, 0, driveWidth-screenWidth, 0);
+                            lp.setMargins(deviceWidth-deviceHeight*16/9, 0, deviceWidth-deviceHeight*16/9, 0);
                             videoView.setLayoutParams(lp);
                         }
                     });
                 }else{
-                    System.out.println(screenHeigh);
                     activity.runOnUiThread(new Runnable() {
                         public void run() {
                             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                                    driveHeight,
-                                    screenHeigh,
+                                    deviceWidth,
+                                    deviceWidth*9/16,
                                     Gravity.TOP
                             );
                             lp.setMargins(0, 0, 0, 0);
