@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-tencent-liteav",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A cordova plugin for Tencent's LiteAV SDK",
   "cordova": {
     "id": "cordova-plugin-tencent-liteav",

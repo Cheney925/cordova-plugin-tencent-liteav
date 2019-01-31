@@ -159,6 +159,7 @@ body.video-play {
 `PLAY_ERR_NET_DISCONNECT` |-2301 |网络断连,且经多次重连亦不能恢复,更多重试请自行重启播放
 
 ## Change Log
+* **v0.3.1** 解决cordova-android@7.0.0以上版本lib目录问题
 * **v0.3.0** 修复android下播放画面不正常的问题
 * **v0.2.2** 删除依赖插件cordova-plugin-compat
 * **v0.2.0** 添加视频信息监听`CLiteAV.onNetStatusChange`和播放事件`CLiteAV.onPlayEvent`
